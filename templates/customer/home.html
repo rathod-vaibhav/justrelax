@@ -85,22 +85,25 @@
             
             <!-- LAYER 1: FLIGHTS 8K AERIAL (Golden sunset airliner cruising through clouds) -->
             <div class="hero-cinematic-layer" :class="{ 'active': activeTab === 'flights' }">
-                <video id="video-flights" class="cinematic-media" autoplay loop muted playsinline poster="/media/hero/flight_hero_ai.jpg" preload="auto">
-                    <source src="/media/hero/flight.webm" type="video/mp4">
+                <video id="video-flights" class="cinematic-media" autoplay loop muted playsinline webkit-playsinline x5-playsinline poster="/media/hero/flight_hero_ai.jpg" preload="auto">
+                    <source src="/media/hero/flight.mp4" type="video/mp4">
+                    <source src="/media/hero/flight.webm" type="video/webm">
                 </video>
             </div>
 
             <!-- LAYER 2: HOTELS 8K LUXURY (Tropical 5-star island resort & infinity pool) -->
             <div class="hero-cinematic-layer" :class="{ 'active': activeTab === 'hotels' }">
-                <video id="video-hotels" class="cinematic-media" autoplay loop muted playsinline poster="/media/hero/hotel_hero_ai.jpg" preload="auto">
-                    <source src="/media/hero/hotel.webm" type="video/mp4">
+                <video id="video-hotels" class="cinematic-media" autoplay loop muted playsinline webkit-playsinline x5-playsinline poster="/media/hero/hotel_hero_ai.jpg" preload="auto">
+                    <source src="/media/hero/hotel.mp4" type="video/mp4">
+                    <source src="/media/hero/hotel.webm" type="video/webm">
                 </video>
             </div>
 
             <!-- LAYER 3: HOLIDAY PACKAGES 8K DRONE (Mountains, turquoise coastline & road trip) -->
             <div class="hero-cinematic-layer" :class="{ 'active': activeTab === 'packages' }">
-                <video id="video-packages" class="cinematic-media" autoplay loop muted playsinline poster="/media/hero/holidays_hero_ai.jpg" preload="auto">
-                    <source src="/media/hero/holidays.webm" type="video/mp4">
+                <video id="video-packages" class="cinematic-media" autoplay loop muted playsinline webkit-playsinline x5-playsinline poster="/media/hero/holidays_hero_ai.jpg" preload="auto">
+                    <source src="/media/hero/holidays.mp4" type="video/mp4">
+                    <source src="/media/hero/holidays.webm" type="video/webm">
                 </video>
             </div>
 
@@ -854,6 +857,20 @@
                     this.closeAllPopups();
                 }
             });
+            
+            // Programmatically trigger background video playback for mobile browsers (iOS Safari / Android)
+            const playHeroVideos = () => {
+                ['video-flights', 'video-hotels', 'video-packages'].forEach(id => {
+                    const v = document.getElementById(id);
+                    if (v && v.paused) {
+                        v.play().catch(err => console.log('Video autoplay deferred:', err));
+                    }
+                });
+            };
+
+            playHeroVideos();
+            document.addEventListener('touchstart', playHeroVideos, { once: true });
+            document.addEventListener('scroll', playHeroVideos, { once: true });
         }
     }).mount('#hero-booking-app');
 </script>
