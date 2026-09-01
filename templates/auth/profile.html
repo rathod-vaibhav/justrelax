@@ -1,0 +1,212 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}My Profile & Account Settings | JustRelax{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6 py-2">
+    
+    <!-- PAGE TITLE BANNER -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center space-x-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 via-blue-600 to-indigo-700 text-white flex items-center justify-center font-black text-lg shadow-md shrink-0">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="Profile Photo" class="w-full h-full object-cover rounded-2xl">
+                {% else %}
+                    {{ user.username|slice:":1"|upper }}
+                {% endif %}
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <h1 class="text-xl font-black text-slate-900">{{ user.first_name|default:user.username }} {{ user.last_name }}</h1>
+                    {% if user.is_admin_or_staff %}
+                        <span class="bg-purple-100 text-purple-800 text-[10px] font-black px-2 py-0.5 rounded-full uppercase border border-purple-200">SUPERADMIN</span>
+                    {% elif is_agent %}
+                        <span class="bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase border border-amber-200">B2B AGENT</span>
+                    {% else %}
+                        <span class="bg-blue-100 text-blue-800 text-[10px] font-black px-2 py-0.5 rounded-full uppercase border border-blue-200">CUSTOMER</span>
+                    {% endif %}
+                </div>
+                <p class="text-xs text-slate-500">Manage account information, contact details, and profile photo avatar.</p>
+            </div>
+        </div>
+
+        <div class="text-right shrink-0">
+            <span class="text-[10px] text-slate-400 font-bold uppercase block">Account ID</span>
+            <span class="text-xs font-mono font-black text-slate-800">#JR-{{ user.id|stringformat:"04d" }}</span>
+        </div>
+    </div>
+
+    <!-- MAIN PROFILE FORM -->
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- CARD 1: PROFILE PHOTO & AVATAR UPLOAD -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center space-x-2">
+                    <i class="ph-bold ph-camera text-brand-600 text-lg"></i>
+                    <h2 class="text-sm font-black text-slate-900">Profile Photo Avatar</h2>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase">JPG / PNG Supported</span>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <!-- AVATAR PREVIEW CONTAINER -->
+                <div class="relative group">
+                    <div class="w-24 h-24 rounded-2xl bg-slate-100 border-2 border-dashed border-slate-300 overflow-hidden flex items-center justify-center shadow-inner relative">
+                        <img id="avatarPreview" src="{% if user.avatar %}{{ user.avatar.url }}{% endif %}" alt="Avatar Preview" class="w-full h-full object-cover {% if not user.avatar %}hidden{% endif %}">
+                        <div id="avatarFallback" class="{% if user.avatar %}hidden{% endif %} flex flex-col items-center justify-center text-slate-400">
+                            <i class="ph-bold ph-user-circle text-4xl"></i>
+                            <span class="text-[10px] font-bold mt-1">No Photo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 space-y-2 text-center sm:text-left">
+                    <label class="block text-xs font-bold text-slate-700">Upload New Profile Photo</label>
+                    <input type="file" name="avatar" id="id_avatar" accept="image/*" onchange="previewProfilePhoto(this)" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                    <p class="text-[11px] text-slate-400">Recommended square dimensions (e.g. 300x300px). Photo displays in top header menu.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 2: PERSONAL INFORMATION -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4 text-xs font-bold">
+            <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
+                <i class="ph-bold ph-user-gear text-brand-600 text-lg"></i>
+                <h2 class="text-sm font-black text-slate-900">Personal & Contact Information</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-slate-700 mb-1">First Name</label>
+                    <input type="text" name="first_name" value="{{ user.first_name }}" placeholder="First name..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-bold text-slate-900">
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 mb-1">Last Name</label>
+                    <input type="text" name="last_name" value="{{ user.last_name }}" placeholder="Last name..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-bold text-slate-900">
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 mb-1">Email Address</label>
+                    <input type="email" name="email" value="{{ user.email }}" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-bold text-slate-900">
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 mb-1">Mobile / Helpline Phone</label>
+                    <input type="tel" name="phone_number" value="{{ user.phone_number|default:'' }}" placeholder="+91 9876543210" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-bold text-slate-900 font-mono">
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 3: B2B TRAVEL AGENCY DETAILS (ONLY IF IS_AGENT) -->
+        {% if is_agent and agent_profile %}
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4 text-xs font-bold">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center space-x-2">
+                        <i class="ph-bold ph-storefront text-amber-600 text-lg"></i>
+                        <h2 class="text-sm font-black text-slate-900">B2B Travel Agency Details</h2>
+                    </div>
+                    <span class="bg-amber-100 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase border border-amber-200">
+                        KYC: {{ agent_profile.get_kyc_status_display }}
+                    </span>
+                </div>
+
+                <!-- AGENCY LOGO & DETAILS -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="sm:col-span-2 flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4 p-3 bg-amber-50/50 rounded-xl border border-amber-200/60">
+                        <div class="w-16 h-16 rounded-xl bg-white border border-amber-200 flex items-center justify-center overflow-hidden shrink-0">
+                            {% if agent_profile.agency_logo %}
+                                <img id="agencyLogoPreview" src="{{ agent_profile.agency_logo.url }}" alt="Agency Logo" class="w-full h-full object-contain">
+                            {% else %}
+                                <i id="agencyLogoFallback" class="ph-bold ph-buildings text-amber-500 text-2xl"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <label class="block text-xs font-black text-amber-900">Upload Official Agency Logo (E-Ticket Header)</label>
+                            <input type="file" name="agency_logo" accept="image/*" onchange="previewAgencyLogo(this)" class="block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-black file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-400 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 mb-1">Agency Registered Name</label>
+                        <input type="text" name="agency_name" value="{{ agent_profile.agency_name }}" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-bold text-slate-900">
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 mb-1">Agency Phone</label>
+                        <input type="text" name="agency_phone" value="{{ agent_profile.agency_phone|default:'' }}" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold font-mono">
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 mb-1">GSTIN Number</label>
+                        <input type="text" name="gstin" value="{{ agent_profile.gstin|default:'' }}" placeholder="27AAAAA0000A1Z5" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold font-mono uppercase">
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 mb-1">PAN / Tax ID</label>
+                        <input type="text" name="tax_or_pan" value="{{ agent_profile.tax_or_pan|default:'' }}" placeholder="ABCDE1234F" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold font-mono uppercase">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-slate-700 mb-1">Office Address</label>
+                        <input type="text" name="agency_address" value="{{ agent_profile.agency_address|default:'' }}" placeholder="Full street address..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 mb-1">City</label>
+                        <input type="text" name="city" value="{{ agent_profile.city|default:'' }}" placeholder="Mumbai, Delhi..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 mb-1">Country</label>
+                        <input type="text" name="country" value="{{ agent_profile.country|default:'India' }}" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- SAVE BUTTON BAR -->
+        <div class="flex items-center justify-end space-x-3 pt-2">
+            <button type="submit" class="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-xs px-6 py-3 rounded-xl shadow-lg shadow-blue-600/20 transition flex items-center">
+                <i class="ph-bold ph-floppy-disk mr-2 text-base"></i> SAVE PROFILE CHANGES
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function previewProfilePhoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('avatarPreview');
+                const fallback = document.getElementById('avatarFallback');
+                img.src = e.target.result;
+                img.classList.remove('hidden');
+                if (fallback) fallback.classList.add('hidden');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function previewAgencyLogo(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('agencyLogoPreview');
+                const fallback = document.getElementById('agencyLogoFallback');
+                if (img) {
+                    img.src = e.target.result;
+                }
+                if (fallback) fallback.classList.add('hidden');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

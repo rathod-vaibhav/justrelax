@@ -1,0 +1,225 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Promo Coupons | JustRelax ERP{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div>
+            <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block">Promotions Desk</span>
+            <h1 class="text-xl font-black text-slate-900">Promo Coupons Engine</h1>
+            <p class="text-xs text-slate-500">Compact directory of promotional discount codes and caps.</p>
+        </div>
+        <div>
+            <button onclick="document.getElementById('addCouponModal').classList.remove('hidden')" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-3.5 py-2 rounded-lg shadow-sm transition flex items-center">
+                <i class="ph-bold ph-plus mr-1.5"></i> Create Promo Coupon
+            </button>
+        </div>
+    </div>
+
+    <!-- COUPONS COMPACT TABLE -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-4">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left compact-table">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 font-black uppercase tracking-wider border-b border-slate-200">
+                        <th>Promo Code</th>
+                        <th>Title</th>
+                        <th>Discount Value</th>
+                        <th>Min Spend</th>
+                        <th>Cap Limit</th>
+                        <th>Applicable Service</th>
+                        <th>Status</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium text-xs">
+                    {% for cp in coupons %}
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="font-mono font-black text-blue-700 text-sm">
+                                <span class="bg-blue-50 px-2 py-0.5 rounded border border-blue-200">{{ cp.code }}</span>
+                            </td>
+                            <td class="font-bold text-slate-900">{{ cp.title }}</td>
+                            <td class="font-mono font-black text-emerald-700">
+                                {% if cp.discount_type == 'PERCENTAGE' %}{{ cp.discount_value }}% OFF{% else %}₹{{ cp.discount_value }} FLAT{% endif %}
+                            </td>
+                            <td class="font-mono text-slate-700">₹{{ cp.min_spend|floatformat:0 }}</td>
+                            <td class="font-mono text-slate-700">₹{{ cp.max_discount_cap|floatformat:0 }}</td>
+                            <td>
+                                <span class="bg-slate-100 text-slate-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
+                                    {{ cp.applicable_to }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if cp.is_active %}
+                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">ACTIVE</span>
+                                {% else %}
+                                    <span class="bg-slate-100 text-slate-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full">DISABLED</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right space-x-1 whitespace-nowrap">
+                                <button type="button" onclick="openEditCouponModal('{{ cp.id }}', '{{ cp.code|escapejs }}', '{{ cp.title|escapejs }}', '{{ cp.discount_type }}', '{{ cp.discount_value }}', '{{ cp.min_spend }}', '{{ cp.max_discount_cap }}', '{{ cp.applicable_to }}', '{{ cp.is_active|yesno:'true,false' }}')" title="Edit Record" class="text-amber-700 hover:text-amber-900 p-1.5 bg-amber-50 hover:bg-amber-100 rounded-lg transition inline-flex items-center justify-center">
+                                    <i class="ph-bold ph-pencil-simple text-base"></i>
+                                </button>
+
+                                <button type="button" onclick="openRecordHistory('coupon', '{{ cp.id }}')" title="View Audit History" class="text-purple-700 hover:text-purple-900 p-1.5 bg-purple-50 hover:bg-purple-100 rounded-lg transition inline-flex items-center justify-center">
+                                    <i class="ph-bold ph-clock-counter-clockwise text-base"></i>
+                                </button>
+
+                                <form method="POST" action="{% url 'admin_delete_master' 'coupon' cp.id %}" onsubmit="return confirm('Delete coupon {{ cp.code }}?')" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" title="Delete Record" class="text-rose-600 hover:text-rose-800 p-1.5 bg-rose-50 hover:bg-rose-100 rounded-lg transition inline-flex items-center justify-center">
+                                        <i class="ph-bold ph-trash text-base"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="p-8 text-center text-slate-400 font-bold">No coupons listed in database.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ADD COUPON MODAL -->
+<div id="addCouponModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="text-base font-black text-slate-900">Create Promo Coupon</h3>
+            <button onclick="document.getElementById('addCouponModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
+        </div>
+
+        <form method="POST" class="space-y-3 text-xs font-bold">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-slate-700 mb-1">Coupon Code</label>
+                    <input type="text" name="code" placeholder="e.g. WELCOME500" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono uppercase">
+                </div>
+                <div>
+                    <label class="block text-slate-700 mb-1">Promo Title</label>
+                    <input type="text" name="title" placeholder="e.g. New User Special" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-slate-700 mb-1">Discount Type</label>
+                    <select name="discount_type" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <option value="FIXED">Flat Amount (₹)</option>
+                        <option value="PERCENTAGE">Percentage (%)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-700 mb-1">Discount Value</label>
+                    <input type="number" step="1" name="discount_value" value="500" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-slate-700 mb-1">Min Spend (₹)</label>
+                    <input type="number" name="min_spend" value="2500" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
+                </div>
+                <div>
+                    <label class="block text-slate-700 mb-1">Max Discount Cap (₹)</label>
+                    <input type="number" name="max_discount_cap" value="5000" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end space-x-2">
+                <button type="button" onclick="document.getElementById('addCouponModal').classList.add('hidden')" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold">Cancel</button>
+                <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-md">Create Coupon</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT COUPON MODAL -->
+<div id="editCouponModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="text-base font-black text-slate-900">Edit Coupon Record</h3>
+            <button onclick="document.getElementById('editCouponModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
+        </div>
+
+        <form method="POST" class="space-y-3 text-xs font-bold">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="EDIT">
+            <input type="hidden" id="edit_coupon_id" name="coupon_id">
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-slate-700 mb-1">Coupon Code</label>
+                    <input type="text" id="edit_coupon_code" name="code" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono uppercase">
+                </div>
+                <div>
+                    <label class="block text-slate-700 mb-1">Promo Title</label>
+                    <input type="text" id="edit_coupon_title" name="title" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-slate-700 mb-1">Discount Type</label>
+                    <select id="edit_coupon_dtype" name="discount_type" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <option value="FIXED">Flat Amount (₹)</option>
+                        <option value="PERCENTAGE">Percentage (%)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-700 mb-1">Discount Value</label>
+                    <input type="number" step="1" id="edit_coupon_dval" name="discount_value" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-slate-700 mb-1">Min Spend (₹)</label>
+                    <input type="number" id="edit_coupon_min" name="min_spend" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
+                </div>
+                <div>
+                    <label class="block text-slate-700 mb-1">Max Cap (₹)</label>
+                    <input type="number" id="edit_coupon_cap" name="max_discount_cap" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-slate-700 mb-1">Active Status</label>
+                <select id="edit_coupon_active" name="is_active" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <option value="true">Active Coupon</option>
+                    <option value="false">Disabled</option>
+                </select>
+            </div>
+
+            <div class="pt-2 flex justify-end space-x-2">
+                <button type="button" onclick="document.getElementById('editCouponModal').classList.add('hidden')" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold">Cancel</button>
+                <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-md">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script>
+    function openEditCouponModal(id, code, title, dtype, dval, minS, cap, appTo, active) {
+        document.getElementById('edit_coupon_id').value = id;
+        document.getElementById('edit_coupon_code').value = code;
+        document.getElementById('edit_coupon_title').value = title;
+        document.getElementById('edit_coupon_dtype').value = dtype;
+        document.getElementById('edit_coupon_dval').value = dval;
+        document.getElementById('edit_coupon_min').value = minS;
+        document.getElementById('edit_coupon_cap').value = cap;
+        document.getElementById('edit_coupon_active').value = active;
+        document.getElementById('editCouponModal').classList.remove('hidden');
+    }
+</script>
+{% endblock %}
+{% endblock %}

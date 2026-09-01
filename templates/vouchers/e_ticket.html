@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>E-Ticket - {{ booking.booking_reference }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 p-8 antialiased">
+    <div class="max-w-3xl mx-auto bg-white rounded-3xl p-8 shadow-xl border border-slate-200 space-y-6">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-4">
+            <div>
+                {% if agent_profile %}
+                    <h2 class="text-xl font-bold text-slate-900">{{ agent_profile.agency_name }}</h2>
+                    <p class="text-xs text-slate-500">Official Partner Agency Booking</p>
+                {% else %}
+                    <h2 class="text-2xl font-black text-slate-900">JustRelax Travel Voucher</h2>
+                {% endif %}
+            </div>
+            <div class="text-right">
+                <span class="text-xs text-slate-400 block">Booking Reference</span>
+                <span class="text-lg font-black text-blue-600 font-mono">{{ booking.booking_reference }}</span>
+            </div>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex justify-between text-xs">
+            <div>
+                <span class="text-slate-400 block uppercase font-bold">Passenger / Guest</span>
+                <span class="font-extrabold text-slate-900 text-sm">{{ booking.contact_name }}</span>
+            </div>
+            <div class="text-right">
+                <span class="text-slate-400 block uppercase font-bold">Total Amount Paid</span>
+                <span class="font-black text-slate-900 text-lg">₹{{ booking.total_amount|floatformat:2 }}</span>
+            </div>
+        </div>
+
+        <div class="text-xs text-slate-500">
+            <p>Status: <strong class="text-emerald-600 font-bold uppercase">{{ booking.get_booking_status_display }}</strong></p>
+            <p>Service: <strong>{{ booking.get_booking_type_display }}</strong></p>
+        </div>
+    </div>
+</body>
+</html>
+

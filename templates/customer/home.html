@@ -1,0 +1,860 @@
+{% extends 'base.html' %}
+
+{% block title %}JustRelax - Flights, Luxury Hotels & Dream Holiday Packages{% endblock %}
+
+{% block extra_head %}
+<style>
+    .video-bg-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+    
+    /* 8K CINEMATIC DRONE MOTION & VIDEO LAYER */
+    .hero-cinematic-layer {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+    }
+    .hero-cinematic-layer.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .cinematic-media {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        transform: translate(-50%, -50%) scale(1.05);
+        object-fit: cover;
+        animation: kenBurnsDrone 24s ease-in-out infinite alternate;
+    }
+
+    @keyframes kenBurnsDrone {
+        0% {
+            transform: translate(-50%, -50%) scale(1.02) rotate(0deg);
+        }
+        50% {
+            transform: translate(-48%, -52%) scale(1.10) rotate(0.5deg);
+        }
+        100% {
+            transform: translate(-52%, -48%) scale(1.05) rotate(-0.5deg);
+        }
+    }
+
+    .hero-glass-overlay {
+        background: radial-gradient(circle at 50% 30%, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.45) 100%),
+                    linear-gradient(180deg, rgba(5, 19, 41, 0.35) 0%, rgba(10, 34, 64, 0.50) 50%, rgba(5, 19, 41, 0.85) 100%);
+    }
+    
+    .search-card-glow {
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 50px rgba(0, 102, 204, 0.25);
+    }
+    
+    /* Ensure date picker icons and dropdown options fit dark glass aesthetic */
+    .hero-glass-card input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+    }
+    .hero-glass-card option {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="hero-booking-app" v-cloak>
+    <!-- HERO SECTION WITH GEMINI AI 8K CINEMATIC DRONE VISUALS & VIDEOS -->
+    <div class="relative text-white pt-10 pb-24 px-4 sm:px-6 lg:px-8 min-h-[580px] sm:min-h-[620px] flex items-center" :style="(openDropdown || showCalendar) ? { position: 'relative', zIndex: 1000 } : { position: 'relative', zIndex: 40 }">
+        
+        <!-- 1. DYNAMIC 8K CINEMATIC VISUAL ENGINE -->
+        <div class="video-bg-container">
+            
+            <!-- LAYER 1: FLIGHTS 8K AERIAL (Golden sunset airliner cruising through clouds) -->
+            <div class="hero-cinematic-layer" :class="{ 'active': activeTab === 'flights' }">
+                <video id="video-flights" class="cinematic-media" autoplay loop muted playsinline poster="/media/hero/flight_hero_ai.jpg" preload="auto">
+                    <source src="/media/hero/flight.webm" type="video/mp4">
+                </video>
+            </div>
+
+            <!-- LAYER 2: HOTELS 8K LUXURY (Tropical 5-star island resort & infinity pool) -->
+            <div class="hero-cinematic-layer" :class="{ 'active': activeTab === 'hotels' }">
+                <video id="video-hotels" class="cinematic-media" autoplay loop muted playsinline poster="/media/hero/hotel_hero_ai.jpg" preload="auto">
+                    <source src="/media/hero/hotel.webm" type="video/mp4">
+                </video>
+            </div>
+
+            <!-- LAYER 3: HOLIDAY PACKAGES 8K DRONE (Mountains, turquoise coastline & road trip) -->
+            <div class="hero-cinematic-layer" :class="{ 'active': activeTab === 'packages' }">
+                <video id="video-packages" class="cinematic-media" autoplay loop muted playsinline poster="/media/hero/holidays_hero_ai.jpg" preload="auto">
+                    <source src="/media/hero/holidays.webm" type="video/mp4">
+                </video>
+            </div>
+
+            <!-- DARK CINEMATIC GLASS OVERLAY FOR CRISP TEXT & CONTRAST -->
+            <div class="absolute inset-0 hero-glass-overlay z-10"></div>
+        </div>
+
+        <div class="max-w-6xl mx-auto relative z-20 w-full">
+            
+            <!-- HERO DYNAMIC TITLE (LINE 1: MAIN HEADING | LINE 2: TAB SUBTITLE) -->
+            <div class="text-center max-w-4xl mx-auto mb-6 transition-all duration-300">
+                <!-- LINE 1 -->
+                <h1 class="block text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight drop-shadow-lg">
+                    Where would you like to <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500">Relax</span> next?
+                </h1>
+                
+                <!-- LINE 2 (DYNAMIC ACROSS ALL 3 TABS: FLIGHTS | HOTELS | HOLIDAY PACKAGES) -->
+                <p class="block text-slate-100 text-xs sm:text-base mt-2.5 sm:mt-3 drop-shadow font-medium max-w-3xl mx-auto leading-relaxed">
+                    <span v-if="activeTab === 'flights'" class="inline-block">Compare 100+ airlines with live seat maps, zero convenience fees, and instant PNR issuance.</span>
+                    <span v-else-if="activeTab === 'hotels'" class="inline-block">Indulge in verified heritage palaces, beachfront pool villas, and boutique luxury retreats.</span>
+                    <span v-else class="inline-block">Curated day-by-day itineraries covering Kerala, Dubai, Bali & Rajasthan with private transfers.</span>
+                </p>
+            </div>
+
+            <!-- PREMIUM COMPACT TRANSPARENT GLASS BOOKING SEARCH CARD -->
+            <div class="hero-glass-card bg-slate-900/65 backdrop-blur-2xl rounded-2xl p-3.5 sm:p-5 text-white border border-white/20 max-w-4xl mx-auto search-card-glow transition duration-300" :style="(openDropdown || showCalendar) ? { position: 'relative', zIndex: 1000 } : { position: 'relative', zIndex: 30 }" @click="closeAllPopups">
+                
+                <!-- TOP SERVICE TABS (Flights | Hotels | Holiday Packages) -->
+                <div class="flex items-center justify-center border-b border-white/15 pb-2.5 mb-3 space-x-2 overflow-x-auto relative z-10">
+                    <button 
+                        type="button"
+                        @click.stop="switchTab('flights')" 
+                        :class="activeTab === 'flights' ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/25 border-amber-400/50' : 'text-white/80 hover:text-white hover:bg-white/10 border-transparent'" 
+                        class="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg font-bold text-xs border transition-all duration-200 cursor-pointer backdrop-blur-md"
+                    >
+                        <i class="ph-duotone ph-airplane-tilt text-base"></i>
+                        <span>Flights</span>
+                    </button>
+
+                    <button 
+                        type="button"
+                        @click.stop="switchTab('hotels')" 
+                        :class="activeTab === 'hotels' ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/25 border-amber-400/50' : 'text-white/80 hover:text-white hover:bg-white/10 border-transparent'" 
+                        class="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg font-bold text-xs border transition-all duration-200 cursor-pointer backdrop-blur-md"
+                    >
+                        <i class="ph-duotone ph-buildings text-base"></i>
+                        <span>Hotels & Stays</span>
+                    </button>
+
+                    <button 
+                        type="button"
+                        @click.stop="switchTab('packages')" 
+                        :class="activeTab === 'packages' ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/25 border-amber-400/50' : 'text-white/80 hover:text-white hover:bg-white/10 border-transparent'" 
+                        class="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg font-bold text-xs border transition-all duration-200 cursor-pointer backdrop-blur-md"
+                    >
+                        <i class="ph-duotone ph-island text-base"></i>
+                        <span>Holiday Packages</span>
+                    </button>
+                </div>
+
+                <!-- 1. FLIGHTS SEARCH FORM -->
+                <form v-if="activeTab === 'flights'" action="{% url 'flight_search' %}" method="GET" class="space-y-3 relative" style="z-index: 20;">
+                    <div class="flex items-center justify-between text-xs font-bold text-white/90 px-1">
+                        <!-- CUSTOM PILL TOGGLE FOR TRIP TYPE -->
+                        <div class="inline-flex bg-black/40 p-0.5 rounded-lg border border-white/15 text-xs">
+                            <button type="button" @click.stop="flightTripType = 'oneway'" :class="flightTripType === 'oneway' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm' : 'text-white/70 hover:text-white font-medium'" class="px-3 py-0.5 rounded-md transition-all duration-200 cursor-pointer text-[11px]">
+                                One Way
+                            </button>
+                            <button type="button" @click.stop="flightTripType = 'roundtrip'" :class="flightTripType === 'roundtrip' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm' : 'text-white/70 hover:text-white font-medium'" class="px-3 py-0.5 rounded-md transition-all duration-200 cursor-pointer text-[11px]">
+                                Round Trip
+                            </button>
+                        </div>
+                        <input type="hidden" name="trip_type" :value="flightTripType">
+
+                        <span class="text-white/60 text-[11px] hidden sm:inline">Book International & Domestic Flights with Instant E-Ticket</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2 p-2 bg-black/40 rounded-xl border border-white/15" :style="(openDropdown || showCalendar) ? { position: 'relative', zIndex: 100 } : { position: 'relative', zIndex: 10 }">
+                        <!-- CUSTOM FROM DROPDOWN -->
+                        <div class="md:col-span-3 p-2 bg-white/10 hover:bg-white/15 rounded-lg border border-white/15 hover:border-amber-400/50 transition-colors duration-200 group cursor-pointer" :class="{'border-amber-400/80 bg-white/20': openDropdown === 'origin'}" :style="openDropdown === 'origin' ? { position: 'relative', zIndex: 999 } : {}" @click.stop="toggleDropdown('origin')">
+                            <span class="block text-[9px] font-black uppercase text-amber-300/90 tracking-wider">From</span>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <span class="font-bold text-white text-xs sm:text-sm truncate">[[ getAirportLabel(flightOrigin) ]]</span>
+                                <i class="ph-bold ph-caret-down text-white/50 group-hover:text-amber-300 text-xs transition-transform duration-200" :class="{'rotate-180 text-amber-300': openDropdown === 'origin'}"></i>
+                            </div>
+
+                            <!-- Custom Dropdown Menu -->
+                            <div v-if="openDropdown === 'origin'" class="absolute left-0 right-0 top-full mt-1.5 bg-slate-950 border border-amber-400/40 rounded-xl shadow-2xl max-h-56 overflow-y-auto divide-y divide-white/10 py-1" style="position: absolute; z-index: 9999 !important;" @click.stop>
+                                <div v-for="ap in airportsList" :key="ap.code" @click="flightOrigin = ap.code; openDropdown = null" class="px-3 py-1.5 hover:bg-gradient-to-r hover:from-amber-500/20 hover:to-orange-500/20 text-white font-medium cursor-pointer flex items-center justify-between text-xs transition-colors" :class="{'bg-amber-500/20 text-amber-300 font-bold': flightOrigin === ap.code}">
+                                    <span>[[ ap.city ]] ([[ ap.code ]])</span>
+                                    <i v-if="flightOrigin === ap.code" class="ph-bold ph-check text-amber-400 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="origin" :value="flightOrigin">
+
+                        <!-- SWAP BUTTON -->
+                        <div class="hidden md:flex md:col-span-1 items-center justify-center -mx-3 relative z-0">
+                            <button type="button" @click.stop="swapAirports" class="w-6.5 h-6.5 rounded-full bg-white/15 hover:bg-amber-500 hover:text-slate-950 text-white border border-white/20 flex items-center justify-center transition-all duration-200 shadow-md backdrop-blur-md cursor-pointer">
+                                <i class="ph-bold ph-arrows-left-right text-xs"></i>
+                            </button>
+                        </div>
+
+                        <!-- CUSTOM TO DROPDOWN -->
+                        <div class="md:col-span-3 p-2 bg-white/10 hover:bg-white/15 rounded-lg border border-white/15 hover:border-amber-400/50 transition-colors duration-200 group cursor-pointer" :class="{'border-amber-400/80 bg-white/20': openDropdown === 'dest'}" :style="openDropdown === 'dest' ? { position: 'relative', zIndex: 999 } : {}" @click.stop="toggleDropdown('dest')">
+                            <span class="block text-[9px] font-black uppercase text-amber-300/90 tracking-wider">To</span>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <span class="font-bold text-white text-xs sm:text-sm truncate">[[ getAirportLabel(flightDest) ]]</span>
+                                <i class="ph-bold ph-caret-down text-white/50 group-hover:text-amber-300 text-xs transition-transform duration-200" :class="{'rotate-180 text-amber-300': openDropdown === 'dest'}"></i>
+                            </div>
+
+                            <!-- Custom Dropdown Menu -->
+                            <div v-if="openDropdown === 'dest'" class="absolute left-0 right-0 top-full mt-1.5 bg-slate-950 border border-amber-400/40 rounded-xl shadow-2xl max-h-56 overflow-y-auto divide-y divide-white/10 py-1" style="position: absolute; z-index: 9999 !important;" @click.stop>
+                                <div v-for="ap in airportsList" :key="ap.code" @click="flightDest = ap.code; openDropdown = null" class="px-3 py-1.5 hover:bg-gradient-to-r hover:from-amber-500/20 hover:to-orange-500/20 text-white font-medium cursor-pointer flex items-center justify-between text-xs transition-colors" :class="{'bg-amber-500/20 text-amber-300 font-bold': flightDest === ap.code}">
+                                    <span>[[ ap.city ]] ([[ ap.code ]])</span>
+                                    <i v-if="flightDest === ap.code" class="ph-bold ph-check text-amber-400 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="destination" :value="flightDest">
+
+                        <!-- CUSTOM DEPARTURE DATEPICKER -->
+                        <div class="md:col-span-2 p-2 bg-white/10 hover:bg-white/15 rounded-lg border border-white/15 hover:border-amber-400/50 transition-colors duration-200 group cursor-pointer" :class="{'border-amber-400/80 bg-white/20': showCalendar === 'depart_date'}" :style="showCalendar === 'depart_date' ? { position: 'relative', zIndex: 999 } : {}" @click.stop="toggleCalendar('depart_date')">
+                            <span class="block text-[9px] font-black uppercase text-amber-300/90 tracking-wider flex items-center justify-between">
+                                Departure <i class="ph-bold ph-calendar-blank text-amber-300 text-xs"></i>
+                            </span>
+                            <span class="font-bold text-white text-xs block mt-0.5">[[ formatDateDisplay(flightDepartDate) ]]</span>
+
+                            <!-- Custom Theme Calendar Popup -->
+                            <div v-if="showCalendar === 'depart_date'" class="absolute left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 top-full mt-1.5 w-64 sm:w-72 bg-slate-950 border border-amber-400/40 rounded-xl p-3 shadow-2xl text-white" style="position: absolute; z-index: 9999 !important;" @click.stop>
+                                <div class="flex items-center justify-between mb-2 pb-2 border-b border-white/10">
+                                    <button type="button" @click="prevMonth" class="w-6.5 h-6.5 rounded-lg bg-white/15 hover:bg-amber-500 hover:text-slate-950 text-white font-bold flex items-center justify-center transition-all cursor-pointer shadow">
+                                        <i class="ph-bold ph-caret-left text-xs"></i>
+                                    </button>
+                                    <span class="font-extrabold text-xs text-amber-300 tracking-wide">[[ monthNames[calendarMonth] ]] [[ calendarYear ]]</span>
+                                    <button type="button" @click="nextMonth" class="w-6.5 h-6.5 rounded-lg bg-white/15 hover:bg-amber-500 hover:text-slate-950 text-white font-bold flex items-center justify-center transition-all cursor-pointer shadow">
+                                        <i class="ph-bold ph-caret-right text-xs"></i>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1 text-center mb-1">
+                                    <span v-for="d in ['Su','Mo','Tu','We','Th','Fr','Sa']" :key="d" class="text-[9px] font-black uppercase text-amber-300/70">[[ d ]]</span>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1 text-center text-xs">
+                                    <div v-for="b in blankDays" :key="'b-'+b" class="p-0.5"></div>
+                                    <button type="button" v-for="day in daysInMonth" :key="day" 
+                                        @click="selectDate('depart_date', day)" 
+                                        :disabled="isPastDate(day)"
+                                        :class="[
+                                            isDateSelected('depart_date', day) ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black shadow-md rounded-md scale-105' : '',
+                                            isToday(day) && !isDateSelected('depart_date', day) ? 'border border-amber-400/90 text-amber-300 font-bold rounded-md' : '',
+                                            !isDateSelected('depart_date', day) && !isPastDate(day) ? 'hover:bg-white/20 rounded-md text-white font-medium' : '',
+                                            isPastDate(day) ? 'text-white/20 cursor-not-allowed' : 'cursor-pointer'
+                                        ]" 
+                                        class="p-1 transition-all text-xs"
+                                    >
+                                        [[ day ]]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="depart_date" :value="flightDepartDate">
+
+                        <!-- TRAVELLERS & CLASS -->
+                        <div class="md:col-span-3 p-2 bg-white/10 hover:bg-white/15 rounded-lg border border-white/15 hover:border-amber-400/50 transition-colors duration-200 group cursor-pointer" :class="{'border-amber-400/80 bg-white/20': openDropdown === 'flight_guests'}" :style="openDropdown === 'flight_guests' ? { position: 'relative', zIndex: 999 } : {}" @click.stop="toggleDropdown('flight_guests')">
+                            <span class="block text-[9px] font-black uppercase text-amber-300/90 tracking-wider">Travellers & Class</span>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <span class="font-bold text-white text-xs truncate">[[ flightAdults ]] Adult(s) | [[ flightCabin === 'ECONOMY' ? 'Economy' : 'Business' ]]</span>
+                                <i class="ph-bold ph-caret-down text-white/50 group-hover:text-amber-300 text-xs transition-transform duration-200" :class="{'rotate-180 text-amber-300': openDropdown === 'flight_guests'}"></i>
+                            </div>
+
+                            <div v-if="openDropdown === 'flight_guests'" class="absolute right-0 top-full mt-1.5 w-60 bg-slate-950 border border-amber-400/40 rounded-xl shadow-2xl p-2.5 space-y-2.5" style="position: absolute; z-index: 9999 !important;" @click.stop>
+                                <div>
+                                    <label class="block text-[9px] font-extrabold text-amber-300 uppercase mb-1">Adults</label>
+                                    <div class="flex space-x-1">
+                                        <button type="button" v-for="n in ['1','2','3','4']" :key="n" @click="flightAdults = n" :class="flightAdults === n ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm' : 'bg-white/10 text-white hover:bg-white/20'" class="flex-1 py-1 rounded-md text-xs transition-all cursor-pointer">
+                                            [[ n ]]
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-extrabold text-amber-300 uppercase mb-1">Cabin Class</label>
+                                    <div class="flex space-x-1">
+                                        <button type="button" @click="flightCabin = 'ECONOMY'" :class="flightCabin === 'ECONOMY' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm' : 'bg-white/10 text-white hover:bg-white/20'" class="flex-1 py-1 rounded-md text-xs transition-all cursor-pointer">
+                                            Economy
+                                        </button>
+                                        <button type="button" @click="flightCabin = 'BUSINESS'" :class="flightCabin === 'BUSINESS' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm' : 'bg-white/10 text-white hover:bg-white/20'" class="flex-1 py-1 rounded-md text-xs transition-all cursor-pointer">
+                                            Business
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="adults" :value="flightAdults">
+                        <input type="hidden" name="cabin_class" :value="flightCabin">
+                    </div>
+
+                    <div class="text-center pt-0.5" :style="(openDropdown || showCalendar) ? { position: 'relative', zIndex: 1 } : { position: 'relative', zIndex: 5 }">
+                        <button type="submit" class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-white font-extrabold text-xs sm:text-sm px-8 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 inline-flex items-center space-x-2 transition-all duration-200 cursor-pointer tracking-wider uppercase hover:scale-[1.02]">
+                            <i class="ph-bold ph-magnifying-glass text-base"></i>
+                            <span>SEARCH FLIGHTS</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- 2. HOTELS SEARCH FORM -->
+                <form v-if="activeTab === 'hotels'" action="{% url 'hotel_search' %}" method="GET" class="space-y-3 relative" style="z-index: 20;">
+                    <div class="flex items-center justify-between text-xs font-bold text-white/90 px-1">
+                        <span class="text-amber-300 font-extrabold flex items-center">
+                            <i class="ph-fill ph-star text-amber-400 mr-1 text-xs"></i> Luxury & Boutique Stays
+                        </span>
+                        <span class="text-white/60 text-[11px] hidden sm:inline">Verified Palaces, Beachfront Resorts & Pool Villas</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2 p-2 bg-black/40 rounded-xl border border-white/15" :style="(openDropdown || showCalendar) ? { position: 'relative', zIndex: 100 } : { position: 'relative', zIndex: 10 }">
+                        <!-- CUSTOM HOTEL CITY DROPDOWN -->
+                        <div class="md:col-span-4 p-2 bg-white/10 hover:bg-white/15 rounded-lg border border-white/15 hover:border-amber-400/50 transition-colors duration-200 group cursor-pointer" :class="{'border-amber-400/80 bg-white/20': openDropdown === 'hotel_city'}" :style="openDropdown === 'hotel_city' ? { position: 'relative', zIndex: 999 } : {}" @click.stop="toggleDropdown('hotel_city')">
+                            <span class="block text-[9px] font-black uppercase text-amber-300/90 tracking-wider">City / Destination</span>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <span class="font-bold text-white text-xs sm:text-sm truncate">[[ hotelCity ]]</span>
+                                <i class="ph-bold ph-caret-down text-white/50 group-hover:text-amber-300 text-xs transition-transform duration-200" :class="{'rotate-180 text-amber-300': openDropdown === 'hotel_city'}"></i>
+                            </div>
+
+                            <div v-if="openDropdown === 'hotel_city'" class="absolute left-0 right-0 top-full mt-1.5 bg-slate-950 border border-amber-400/40 rounded-xl shadow-2xl max-h-56 overflow-y-auto divide-y divide-white/10 py-1" style="position: absolute; z-index: 9999 !important;" @click.stop>
+                                <div v-for="d in destinationsList" :key="d.city" @click="hotelCity = d.city; openDropdown = null" class="px-3 py-1.5 hover:bg-gradient-to-r hover:from-amber-500/20 hover:to-orange-500/20 text-white font-medium cursor-pointer flex items-center justify-between text-xs transition-colors" :class="{'bg-amber-500/20 text-amber-300 font-bold': hotelCity === d.city}">
+                                    <span>[[ d.city ]] ([[ d.country ]])</span>
+                                    <i v-if="hotelCity === d.city" class="ph-bold ph-check text-amber-400 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="city" :value="hotelCity">
+
+                        <!-- CHECKIN DATE -->
+                        <div class="md:col-span-3 p-2 bg-white/10 hover:bg-white/15 rounded-lg border border-white/15 hover:border-amber-400/50 transition-colors duration-200 group cursor-pointer" :class="{'border-amber-400/80 bg-white/20': showCalendar === 'checkin'}" :style="showCalendar === 'checkin' ? { position: 'relative', zIndex: 999 } : {}" @click.stop="toggleCalendar('checkin')">
+                            <span class="block text-[9px] font-black uppercase text-amber-300/90 tracking-wider flex items-center justify-between">
+                                Check-in <i class="ph-bold ph-calendar-blank text-amber-300 text-xs"></i>
+                            </span>
+                            <span class="font-bold text-white text-xs block mt-0.5">[[ formatDateDisplay(hotelCheckin) ]]</span>
+
+                            <div v-if="showCalendar === 'checkin'" class="absolute left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 top-full mt-1.5 w-64 sm:w-72 bg-slate-950 border border-amber-400/40 rounded-xl p-3 shadow-2xl text-white" style="position: absolute; z-index: 9999 !important;" @click.stop>
+                                <div class="flex items-center justify-between mb-2 pb-2 border-b border-white/10">
+                                    <button type="button" @click="prevMonth" class="w-6.5 h-6.5 rounded-lg bg-white/15 hover:bg-amber-500 hover:text-slate-950 text-white font-bold flex items-center justify-center transition-all cursor-pointer shadow">
+                                        <i class="ph-bold ph-caret-left text-xs"></i>
+                                    </button>
+                                    <span class="font-extrabold text-xs text-amber-300 tracking-wide">[[ monthNames[calendarMonth] ]] [[ calendarYear ]]</span>
+                                    <button type="button" @click="nextMonth" class="w-6.5 h-6.5 rounded-lg bg-white/15 hover:bg-amber-500 hover:text-slate-950 text-white font-bold flex items-center justify-center transition-all cursor-pointer shadow">
+                                        <i class="ph-bold ph-caret-right text-xs"></i>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1 text-center mb-1">
+                                    <span v-for="d in ['Su','Mo','Tu','We','Th','Fr','Sa']" :key="d" class="text-[9px] font-black uppercase text-amber-300/70">[[ d ]]</span>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1 text-center text-xs">
+                                    <div v-for="b in blankDays" :key="'b-'+b" class="p-0.5"></div>
+                                    <button type="button" v-for="day in daysInMonth" :key="day" 
+                                        @click="selectDate('checkin', day)" 
+                                        :disabled="isPastDate(day)"
+                                        :class="[
+                                            isDateSelected('checkin', day) ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black shadow-md rounded-md scale-105' : '',
+                                            isToday(day) && !isDateSelected('checkin', day) ? 'border border-amber-400/90 text-amber-300 font-bold rounded-md' : '',
+                                            !isDateSelected('checkin', day) && !isPastDate(day) ? 'hover:bg-white/20 rounded-md text-white font-medium' : '',
+                                            isPastDate(day) ? 'text-white/20 cursor-not-allowed' : 'cursor-pointer'
+                                        ]" 
+                                        class="p-1 transition-all text-xs"
+                                    >
+                                        [[ day ]]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="checkin" :value="hotelCheckin">
+
+                        <!-- CHECKOUT DATE -->
+                        <div class="md:col-span-3 p-2 bg-white/10 hover:bg-white/15 rounded-lg border border-white/15 hover:border-amber-400/50 transition-colors duration-200 group cursor-pointer" :class="{'border-amber-400/80 bg-white/20': showCalendar === 'checkout'}" :style="showCalendar === 'checkout' ? { position: 'relative', zIndex: 999 } : {}" @click.stop="toggleCalendar('checkout')">
+                            <span class="block text-[9px] font-black uppercase text-amber-300/90 tracking-wider flex items-center justify-between">
+                                Check-out <i class="ph-bold ph-calendar-blank text-amber-300 text-xs"></i>
+                            </span>
+                            <span class="font-bold text-white text-xs block mt-0.5">[[ formatDateDisplay(hotelCheckout) ]]</span>
+
+                            <div v-if="showCalendar === 'checkout'" class="absolute left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 top-full mt-1.5 w-64 sm:w-72 bg-slate-950 border border-amber-400/40 rounded-xl p-3 shadow-2xl text-white" style="position: absolute; z-index: 9999 !important;" @click.stop>
+                                <div class="flex items-center justify-between mb-2 pb-2 border-b border-white/10">
+                                    <button type="button" @click="prevMonth" class="w-6.5 h-6.5 rounded-lg bg-white/15 hover:bg-amber-500 hover:text-slate-950 text-white font-bold flex items-center justify-center transition-all cursor-pointer shadow">
+                                        <i class="ph-bold ph-caret-left text-xs"></i>
+                                    </button>
+                                    <span class="font-extrabold text-xs text-amber-300 tracking-wide">[[ monthNames[calendarMonth] ]] [[ calendarYear ]]</span>
+                                    <button type="button" @click="nextMonth" class="w-6.5 h-6.5 rounded-lg bg-white/15 hover:bg-amber-500 hover:text-slate-950 text-white font-bold flex items-center justify-center transition-all cursor-pointer shadow">
+                                        <i class="ph-bold ph-caret-right text-xs"></i>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1 text-center mb-1">
+                                    <span v-for="d in ['Su','Mo','Tu','We','Th','Fr','Sa']" :key="d" class="text-[9px] font-black uppercase text-amber-300/70">[[ d ]]</span>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1 text-center text-xs">
+                                    <div v-for="b in blankDays" :key="'b-'+b" class="p-0.5"></div>
+                                    <button type="button" v-for="day in daysInMonth" :key="day" 
+                                        @click="selectDate('checkout', day)" 
+                                        :disabled="isPastDate(day)"
+                                        :class="[
+                                            isDateSelected('checkout', day) ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black shadow-md rounded-md scale-105' : '',
+                                            isToday(day) && !isDateSelected('checkout', day) ? 'border border-amber-400/90 text-amber-300 font-bold rounded-md' : '',
+                                            !isDateSelected('checkout', day) && !isPastDate(day) ? 'hover:bg-white/20 rounded-md text-white font-medium' : '',
+                                            isPastDate(day) ? 'text-white/20 cursor-not-allowed' : 'cursor-pointer'
+                                        ]" 
+                                        class="p-1 transition-all text-xs"
+                                    >
+                                        [[ day ]]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="checkout" :value="hotelCheckout">
+
+                        <!-- GUESTS DROPDOWN -->
+                        <div class="md:col-span-2 p-2 bg-white/10 hover:bg-white/15 rounded-lg border border-white/15 hover:border-amber-400/50 transition-colors duration-200 group cursor-pointer" :class="{'border-amber-400/80 bg-white/20': openDropdown === 'hotel_guests'}" :style="openDropdown === 'hotel_guests' ? { position: 'relative', zIndex: 999 } : {}" @click.stop="toggleDropdown('hotel_guests')">
+                            <span class="block text-[9px] font-black uppercase text-amber-300/90 tracking-wider">Guests</span>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <span class="font-bold text-white text-xs truncate">[[ hotelAdults ]] Adult(s)</span>
+                                <i class="ph-bold ph-caret-down text-white/50 group-hover:text-amber-300 text-xs transition-transform duration-200" :class="{'rotate-180 text-amber-300': openDropdown === 'hotel_guests'}"></i>
+                            </div>
+
+                            <div v-if="openDropdown === 'hotel_guests'" class="absolute right-0 top-full mt-1.5 w-52 bg-slate-950 border border-amber-400/40 rounded-xl shadow-2xl p-2 divide-y divide-white/10" style="position: absolute; z-index: 9999 !important;" @click.stop>
+                                <div v-for="g in [{val:'1', label:'1 Adult'}, {val:'2', label:'2 Adults (1 Room)'}, {val:'3', label:'3 Adults'}, {val:'4', label:'4 Adults (2 Rooms)'}]" :key="g.val" @click="hotelAdults = g.val; openDropdown = null" class="px-3 py-1.5 hover:bg-gradient-to-r hover:from-amber-500/20 hover:to-orange-500/20 text-white font-medium cursor-pointer flex items-center justify-between text-xs transition-colors rounded-lg" :class="{'bg-amber-500/20 text-amber-300 font-bold': hotelAdults === g.val}">
+                                    <span>[[ g.label ]]</span>
+                                    <i v-if="hotelAdults === g.val" class="ph-bold ph-check text-amber-400 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="adults" :value="hotelAdults">
+                    </div>
+
+                    <div class="text-center pt-0.5" :style="(openDropdown || showCalendar) ? { position: 'relative', zIndex: 1 } : { position: 'relative', zIndex: 5 }">
+                        <button type="submit" class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-white font-extrabold text-xs sm:text-sm px-8 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 inline-flex items-center space-x-2 transition-all duration-200 cursor-pointer tracking-wider uppercase hover:scale-[1.02]">
+                            <i class="ph-bold ph-magnifying-glass text-base"></i>
+                            <span>SEARCH LUXURY HOTELS</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- 3. HOLIDAY PACKAGES SEARCH FORM -->
+                <form v-if="activeTab === 'packages'" action="{% url 'packages_list' %}" method="GET" class="space-y-3 relative" style="z-index: 20;">
+                    <div class="flex items-center justify-between text-xs font-bold text-white/90 px-1">
+                        <span class="text-amber-300 font-extrabold flex items-center">
+                            <i class="ph-fill ph-map-pin text-amber-400 mr-1 text-xs"></i> All-Inclusive Tour Packages
+                        </span>
+                        <span class="text-white/60 text-[11px] hidden sm:inline">Curated Itineraries with 4/5-Star Stays & Private Cab Transfers</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2 p-2 bg-black/40 rounded-xl border border-white/15" :style="(openDropdown || showCalendar) ? { position: 'relative', zIndex: 100 } : { position: 'relative', zIndex: 10 }">
+                        <!-- PKG DESTINATION -->
+                        <div class="md:col-span-5 p-2 bg-white/10 hover:bg-white/15 rounded-lg border border-white/15 hover:border-amber-400/50 transition-colors duration-200 group cursor-pointer" :class="{'border-amber-400/80 bg-white/20': openDropdown === 'pkg_dest'}" :style="openDropdown === 'pkg_dest' ? { position: 'relative', zIndex: 999 } : {}" @click.stop="toggleDropdown('pkg_dest')">
+                            <span class="block text-[9px] font-black uppercase text-amber-300/90 tracking-wider">Dream Destination</span>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <span class="font-bold text-white text-xs truncate">[[ pkgDest ? pkgDest : 'All Dream Destinations' ]]</span>
+                                <i class="ph-bold ph-caret-down text-white/50 group-hover:text-amber-300 text-xs transition-transform duration-200" :class="{'rotate-180 text-amber-300': openDropdown === 'pkg_dest'}"></i>
+                            </div>
+
+                            <div v-if="openDropdown === 'pkg_dest'" class="absolute left-0 right-0 top-full mt-1.5 bg-slate-950 border border-amber-400/40 rounded-xl shadow-2xl max-h-56 overflow-y-auto divide-y divide-white/10 py-1" style="position: absolute; z-index: 9999 !important;" @click.stop>
+                                <div @click="pkgDest = ''; openDropdown = null" class="px-3 py-1.5 hover:bg-gradient-to-r hover:from-amber-500/20 hover:to-orange-500/20 text-white font-medium cursor-pointer flex items-center justify-between text-xs transition-colors" :class="{'bg-amber-500/20 text-amber-300 font-bold': pkgDest === ''}">
+                                    <span>All Dream Destinations</span>
+                                    <i v-if="pkgDest === ''" class="ph-bold ph-check text-amber-400 text-xs"></i>
+                                </div>
+                                <div v-for="d in destinationsList" :key="d.city" @click="pkgDest = d.city; openDropdown = null" class="px-3 py-1.5 hover:bg-gradient-to-r hover:from-amber-500/20 hover:to-orange-500/20 text-white font-medium cursor-pointer flex items-center justify-between text-xs transition-colors" :class="{'bg-amber-500/20 text-amber-300 font-bold': pkgDest === d.city}">
+                                    <span>[[ d.city ]] ([[ d.country ]])</span>
+                                    <i v-if="pkgDest === d.city" class="ph-bold ph-check text-amber-400 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="destination" :value="pkgDest">
+
+                        <!-- PKG CATEGORY -->
+                        <div class="md:col-span-4 p-2 bg-white/10 hover:bg-white/15 rounded-lg border border-white/15 hover:border-amber-400/50 transition-colors duration-200 group cursor-pointer" :class="{'border-amber-400/80 bg-white/20': openDropdown === 'pkg_cat'}" :style="openDropdown === 'pkg_cat' ? { position: 'relative', zIndex: 999 } : {}" @click.stop="toggleDropdown('pkg_cat')">
+                            <span class="block text-[9px] font-black uppercase text-amber-300/90 tracking-wider">Theme</span>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <span class="font-bold text-white text-xs truncate">[[ getCategoryName(pkgCategory) ]]</span>
+                                <i class="ph-bold ph-caret-down text-white/50 group-hover:text-amber-300 text-xs transition-transform duration-200" :class="{'rotate-180 text-amber-300': openDropdown === 'pkg_cat'}"></i>
+                            </div>
+
+                            <div v-if="openDropdown === 'pkg_cat'" class="absolute left-0 right-0 top-full mt-1.5 bg-slate-950 border border-amber-400/40 rounded-xl shadow-2xl max-h-56 overflow-y-auto divide-y divide-white/10 py-1" style="position: absolute; z-index: 9999 !important;" @click.stop>
+                                <div @click="pkgCategory = ''; openDropdown = null" class="px-3 py-1.5 hover:bg-gradient-to-r hover:from-amber-500/20 hover:to-orange-500/20 text-white font-medium cursor-pointer flex items-center justify-between text-xs transition-colors" :class="{'bg-amber-500/20 text-amber-300 font-bold': pkgCategory === ''}">
+                                    <span>All Categories</span>
+                                    <i v-if="pkgCategory === ''" class="ph-bold ph-check text-amber-400 text-xs"></i>
+                                </div>
+                                <div v-for="c in categoriesList" :key="c.slug" @click="pkgCategory = c.slug; openDropdown = null" class="px-3 py-1.5 hover:bg-gradient-to-r hover:from-amber-500/20 hover:to-orange-500/20 text-white font-medium cursor-pointer flex items-center justify-between text-xs transition-colors" :class="{'bg-amber-500/20 text-amber-300 font-bold': pkgCategory === c.slug}">
+                                    <span>[[ c.name ]]</span>
+                                    <i v-if="pkgCategory === c.slug" class="ph-bold ph-check text-amber-400 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="category" :value="pkgCategory">
+
+                        <!-- PKG DURATION -->
+                        <div class="md:col-span-3 p-2 bg-white/10 hover:bg-white/15 rounded-lg border border-white/15 hover:border-amber-400/50 transition-colors duration-200 group cursor-pointer" :class="{'border-amber-400/80 bg-white/20': openDropdown === 'pkg_dur'}" :style="openDropdown === 'pkg_dur' ? { position: 'relative', zIndex: 999 } : {}" @click.stop="toggleDropdown('pkg_dur')">
+                            <span class="block text-[9px] font-black uppercase text-amber-300/90 tracking-wider">Duration</span>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <span class="font-bold text-white text-xs truncate">[[ getDurationLabel(pkgDuration) ]]</span>
+                                <i class="ph-bold ph-caret-down text-white/50 group-hover:text-amber-300 text-xs transition-transform duration-200" :class="{'rotate-180 text-amber-300': openDropdown === 'pkg_dur'}"></i>
+                            </div>
+
+                            <div v-if="openDropdown === 'pkg_dur'" class="absolute right-0 top-full mt-1.5 w-52 bg-slate-950 border border-amber-400/40 rounded-xl shadow-2xl p-2 divide-y divide-white/10" style="position: absolute; z-index: 9999 !important;" @click.stop>
+                                <div v-for="dur in [{val:'', label:'Any Duration'}, {val:'short', label:'1 - 4 Days (Quick)'}, {val:'medium', label:'5 - 7 Days (Popular)'}, {val:'long', label:'8+ Days (Extended)'}]" :key="dur.val" @click="pkgDuration = dur.val; openDropdown = null" class="px-3 py-1.5 hover:bg-gradient-to-r hover:from-amber-500/20 hover:to-orange-500/20 text-white font-medium cursor-pointer flex items-center justify-between text-xs transition-colors rounded-lg" :class="{'bg-amber-500/20 text-amber-300 font-bold': pkgDuration === dur.val}">
+                                    <span>[[ dur.label ]]</span>
+                                    <i v-if="pkgDuration === dur.val" class="ph-bold ph-check text-amber-400 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="duration" :value="pkgDuration">
+                    </div>
+
+                    <div class="text-center pt-0.5" :style="(openDropdown || showCalendar) ? { position: 'relative', zIndex: 1 } : { position: 'relative', zIndex: 5 }">
+                        <button type="submit" class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-white font-extrabold text-xs sm:text-sm px-8 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 inline-flex items-center space-x-2 transition-all duration-200 cursor-pointer tracking-wider uppercase hover:scale-[1.02]">
+                            <i class="ph-bold ph-compass text-base"></i>
+                            <span>EXPLORE HOLIDAY PACKAGES</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- REDESIGNED PREMIUM PROMOTIONAL COUPONS & OFFERS (LIGHT THEME) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-12 relative z-30">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 flex items-center">
+                    Exclusive Deals & Savings
+                </h3>
+            </div>
+            <span class="text-xs font-semibold text-slate-500 hidden sm:inline">Use promo code at checkout for instant discount</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% for c in coupons %}
+                <div class="bg-white border border-slate-200/80 hover:border-amber-400/80 rounded-2xl p-4 shadow-sm hover:shadow-xl hover:shadow-orange-500/10 transition-all duration-300 flex items-center justify-between group cursor-pointer">
+                    <div class="flex items-center space-x-3.5 min-w-0">
+                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform shrink-0">
+                            <i class="ph-duotone ph-ticket"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="text-[9px] font-black uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/80 inline-block">
+                                {{ c.get_applicable_to_display }}
+                            </span>
+                            <h4 class="text-xs font-extrabold text-slate-900 mt-1 group-hover:text-amber-600 transition-colors truncate">{{ c.title }}</h4>
+                            <div class="flex items-center space-x-1.5 mt-1">
+                                <span class="text-[11px] font-mono font-extrabold text-orange-600 bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200/80 px-2 py-0.5 rounded-md">
+                                    CODE: {{ c.code }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- BESTSELLER HOLIDAY PACKAGES -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-md">Curated Experiences</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">Bestseller Holiday Packages</h2>
+                <p class="text-slate-500 text-sm mt-1">All-inclusive itineraries with 4-Star / 5-Star stays, private cab transfers & daily breakfasts.</p>
+            </div>
+            <a href="{% url 'packages_list' %}" class="text-sm font-bold text-brand-600 flex items-center group">
+                <span>View All Packages</span>
+                <i class="ph-bold ph-arrow-right ml-1 transition-transform"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for item in featured_packages %}
+                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="h-52 bg-slate-900 relative overflow-hidden flex items-center justify-center text-white">
+                            {% if item.pkg.hero_image %}
+                                <img src="{{ item.pkg.hero_image.url }}" alt="{{ item.pkg.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/40 to-transparent z-10"></div>
+                            {% else %}
+                                <div class="w-full h-full bg-slate-800 flex items-center justify-center text-white" style="background: linear-gradient(135deg, #1e3a8a, #0f766e);">
+                                    <i class="ph-duotone ph-mountains text-6xl text-white/20"></i>
+                                </div>
+                            {% endif %}
+
+                            <div class="absolute top-4 left-4 z-20 flex space-x-2">
+                                <span class="bg-white/90 backdrop-blur-md text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full shadow">
+                                    {{ item.pkg.duration_formatted }}
+                                </span>
+                                <span class="bg-coral-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
+                                    {{ item.pkg.category.name }}
+                                </span>
+                            </div>
+                            <div class="absolute bottom-4 left-4 right-4 z-20">
+                                <p class="text-xs text-amber-300 font-bold uppercase"><i class="ph-fill ph-map-pin mr-1"></i>{{ item.pkg.destination_city }}</p>
+                                <h3 class="text-lg font-bold text-white leading-snug line-clamp-1 drop-shadow">{{ item.pkg.title }}</h3>
+                            </div>
+                        </div>
+
+                        <div class="p-5 space-y-4">
+                            <ul class="space-y-1.5 text-xs text-slate-600">
+                                {% for h in item.pkg.highlights_list|slice:":3" %}
+                                    <li class="flex items-center text-slate-700">
+                                        <i class="ph-fill ph-check-circle text-emerald-500 mr-2 text-sm"></i>
+                                        <span class="truncate">{{ h }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="p-5 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 block font-medium">Starting from / person</span>
+                            <span class="text-2xl font-black text-brand-900">₹{{ item.display_price|floatformat:0 }}</span>
+                        </div>
+                        <a href="{% url 'package_detail' item.pkg.slug %}" class="orange-gradient text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-orange-500/20 hover:opacity-90 transition">
+                            View Itinerary
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- TOP-RATED HOTELS & RESORTS -->
+    <section class="bg-slate-100/70 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">Luxury Stays</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">Top-Rated Hotels & Resorts</h2>
+                </div>
+                <a href="{% url 'hotel_search' %}" class="text-sm font-bold text-brand-600">Explore All Hotels</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {% for h in featured_hotels %}
+                    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl transition duration-300 flex flex-col justify-between group">
+                        <div>
+                            <div class="h-52 bg-slate-900 relative overflow-hidden flex items-center justify-center text-white">
+                                {% if h.hotel.hero_image %}
+                                    <img src="{{ h.hotel.hero_image.url }}" alt="{{ h.hotel.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent z-10"></div>
+                                {% else %}
+                                    <div class="w-full h-full bg-slate-800 flex items-center justify-center text-white" style="background: linear-gradient(135deg, #1e293b, #0f172a);">
+                                        <i class="ph-duotone ph-buildings text-5xl text-white/20"></i>
+                                    </div>
+                                {% endif %}
+
+                                <span class="absolute top-4 left-4 z-20 bg-slate-950/80 backdrop-blur-md text-amber-300 text-xs font-bold px-3 py-1 rounded-full flex items-center shadow border border-white/10">
+                                    <i class="ph-fill ph-star text-amber-400 mr-1"></i> {{ h.hotel.star_rating }}-Star Luxury
+                                </span>
+                            </div>
+                            <div class="p-5 space-y-2">
+                                <h3 class="text-lg font-bold text-slate-900">{{ h.hotel.name }}</h3>
+                                <p class="text-xs text-slate-500"><i class="ph-fill ph-map-pin text-brand-500 mr-1"></i> {{ h.hotel.destination.city }}, {{ h.hotel.destination.country }}</p>
+                                <p class="text-xs text-slate-600 line-clamp-2">{{ h.hotel.description }}</p>
+                            </div>
+                        </div>
+
+                        <div class="p-5 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between">
+                            <div>
+                                <span class="text-[11px] text-slate-400 block font-medium">Starts per night</span>
+                                <span class="text-2xl font-black text-brand-900">₹{{ h.display_price|floatformat:0 }}</span>
+                            </div>
+                            <a href="{% url 'hotel_detail' h.hotel.id %}" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl">View Rooms</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        delimiters: ['[[', ']]'],
+        data() {
+            return {
+                activeTab: 'flights',
+                flightTripType: 'oneway',
+                flightOrigin: 'DEL',
+                flightDest: 'BOM',
+                flightDepartDate: '{{ today_str }}',
+                flightAdults: '1',
+                flightCabin: 'ECONOMY',
+
+                hotelCity: '{% if destinations %}{{ destinations.0.city|escapejs }}{% else %}Goa{% endif %}',
+                hotelCheckin: '{{ tomorrow_str }}',
+                hotelCheckout: '{{ day_after_str }}',
+                hotelAdults: '2',
+
+                pkgDest: '',
+                pkgCategory: '',
+                pkgDuration: '',
+
+                openDropdown: null,
+                showCalendar: null,
+
+                calendarYear: new Date().getFullYear(),
+                calendarMonth: new Date().getMonth(),
+                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+
+                airportsList: [
+                    {% for ap in airports %}
+                        { code: '{{ ap.code|escapejs }}', city: '{{ ap.city|escapejs }}' },
+                    {% endfor %}
+                ],
+                destinationsList: [
+                    {% for dest in destinations %}
+                        { city: '{{ dest.city|escapejs }}', country: '{{ dest.country|escapejs }}' },
+                    {% endfor %}
+                ],
+                categoriesList: [
+                    {% for cat in categories %}
+                        { slug: '{{ cat.slug|escapejs }}', name: '{{ cat.name|escapejs }}' },
+                    {% endfor %}
+                ]
+            }
+        },
+        computed: {
+            blankDays() {
+                const firstDay = new Date(this.calendarYear, this.calendarMonth, 1).getDay();
+                return Array.from({ length: firstDay }, (_, i) => i);
+            },
+            daysInMonth() {
+                const count = new Date(this.calendarYear, this.calendarMonth + 1, 0).getDate();
+                return Array.from({ length: count }, (_, i) => i + 1);
+            }
+        },
+        methods: {
+            switchTab(tab) {
+                this.activeTab = tab;
+                this.closeAllPopups();
+                this.$nextTick(() => {
+                    const video = document.getElementById(`video-${tab}`);
+                    if (video && video.paused) {
+                        video.play().catch(() => {});
+                    }
+                });
+            },
+            swapAirports() {
+                const temp = this.flightOrigin;
+                this.flightOrigin = this.flightDest;
+                this.flightDest = temp;
+            },
+            toggleDropdown(key) {
+                this.showCalendar = null;
+                this.openDropdown = this.openDropdown === key ? null : key;
+            },
+            toggleCalendar(key) {
+                this.openDropdown = null;
+                if (this.showCalendar === key) {
+                    this.showCalendar = null;
+                } else {
+                    this.showCalendar = key;
+                    const val = this.getDateVal(key);
+                    if (val) {
+                        const parts = val.split('-');
+                        if (parts.length === 3) {
+                            this.calendarYear = parseInt(parts[0], 10);
+                            this.calendarMonth = parseInt(parts[1], 10) - 1;
+                        }
+                    }
+                }
+            },
+            closeAllPopups() {
+                this.openDropdown = null;
+                this.showCalendar = null;
+            },
+            getAirportLabel(code) {
+                const ap = this.airportsList.find(a => a.code === code);
+                return ap ? `${ap.city} (${ap.code})` : code;
+            },
+            getCategoryName(slug) {
+                if (!slug) return 'All Categories';
+                const cat = this.categoriesList.find(c => c.slug === slug);
+                return cat ? cat.name : slug;
+            },
+            getDurationLabel(dur) {
+                if (dur === 'short') return '1 - 4 Days (Quick)';
+                if (dur === 'medium') return '5 - 7 Days (Popular)';
+                if (dur === 'long') return '8+ Days (Extended)';
+                return 'Any Duration';
+            },
+            prevMonth() {
+                if (this.calendarMonth === 0) {
+                    this.calendarMonth = 11;
+                    this.calendarYear--;
+                } else {
+                    this.calendarMonth--;
+                }
+            },
+            nextMonth() {
+                if (this.calendarMonth === 11) {
+                    this.calendarMonth = 0;
+                    this.calendarYear++;
+                } else {
+                    this.calendarMonth++;
+                }
+            },
+            getDateVal(key) {
+                if (key === 'depart_date') return this.flightDepartDate;
+                if (key === 'checkin') return this.hotelCheckin;
+                if (key === 'checkout') return this.hotelCheckout;
+                return '';
+            },
+            setDateVal(key, valStr) {
+                if (key === 'depart_date') this.flightDepartDate = valStr;
+                if (key === 'checkin') this.hotelCheckin = valStr;
+                if (key === 'checkout') this.hotelCheckout = valStr;
+            },
+            formatDateDisplay(valStr) {
+                if (!valStr) return 'MM/DD/YYYY';
+                const parts = valStr.split('-');
+                if (parts.length === 3) {
+                    return `${parts[1]}/${parts[2]}/${parts[0]}`;
+                }
+                return valStr;
+            },
+            selectDate(key, dayNum) {
+                const m = String(this.calendarMonth + 1).padStart(2, '0');
+                const d = String(dayNum).padStart(2, '0');
+                const valStr = `${this.calendarYear}-${m}-${d}`;
+                this.setDateVal(key, valStr);
+                this.showCalendar = null;
+            },
+            isDateSelected(key, dayNum) {
+                const val = this.getDateVal(key);
+                if (!val) return false;
+                const m = String(this.calendarMonth + 1).padStart(2, '0');
+                const d = String(dayNum).padStart(2, '0');
+                return val === `${this.calendarYear}-${m}-${d}`;
+            },
+            isToday(dayNum) {
+                const today = new Date();
+                return today.getFullYear() === this.calendarYear && today.getMonth() === this.calendarMonth && today.getDate() === dayNum;
+            },
+            isPastDate(dayNum) {
+                const target = new Date(this.calendarYear, this.calendarMonth, dayNum, 23, 59, 59);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                return target < today;
+            }
+        },
+        mounted() {
+            document.addEventListener('click', (e) => {
+                if (this.$el && !this.$el.contains(e.target)) {
+                    this.closeAllPopups();
+                }
+            });
+        }
+    }).mount('#hero-booking-app');
+</script>
+{% endblock %}

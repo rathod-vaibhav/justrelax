@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}My Trips | JustRelax{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900">My Trips & Bookings</h1>
+            <p class="text-xs text-slate-500">Manage all your platform travel reservations.</p>
+        </div>
+        <a href="{% url 'flight_search' %}" class="orange-gradient text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md">
+            + Book New Trip
+        </a>
+    </div>
+
+    <div class="space-y-4">
+        {% for b in bookings %}
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                <div class="space-y-1">
+                    <span class="font-mono font-bold text-brand-600 text-xs">#{{ b.booking_reference }}</span>
+                    <h3 class="text-lg font-bold text-slate-900">{{ b.get_booking_type_display }} Booking</h3>
+                    <p class="text-xs text-slate-500">Traveler: {{ b.contact_name }} ({{ b.contact_email }})</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-slate-400 block">Total Fare</span>
+                    <span class="text-xl font-black text-slate-900">₹{{ b.total_amount|floatformat:2 }}</span>
+                    <div class="flex items-center justify-end space-x-2 mt-2">
+                        <a href="{% url 'booking_voucher' b.booking_reference %}" target="_blank" class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg">
+                            E-Ticket
+                        </a>
+                        {% if b.booking_status == 'CONFIRMED' %}
+                            <a href="{% url 'cancel_booking' b.booking_reference %}" class="bg-red-50 text-red-700 text-xs font-bold px-3 py-1.5 rounded-lg">
+                                Cancel
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="bg-white rounded-3xl p-12 text-center border border-slate-100 text-slate-400 text-xs">
+                No bookings found. Start by searching for flights or hotels!
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Confirmed - {{ booking.booking_reference }} | JustRelax{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center space-y-6">
+    <div class="bg-white rounded-3xl p-8 sm:p-12 border border-slate-100 shadow-xl space-y-6">
+        <div class="w-16 h-16 mx-auto rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-4xl">
+            <i class="ph-bold ph-check-circle"></i>
+        </div>
+        <div>
+            <h1 class="text-3xl font-black text-slate-900">Booking Confirmed!</h1>
+            <p class="text-xs text-slate-500 mt-1">E-Ticket sent to <strong class="text-slate-800">{{ booking.contact_email }}</strong></p>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 inline-block text-left min-w-[280px]">
+            <div class="flex justify-between items-center text-xs text-slate-500 pb-2 border-b border-slate-200">
+                <span>Booking Reference</span>
+                <span class="font-mono font-bold text-brand-600">{{ booking.booking_reference }}</span>
+            </div>
+            <div class="flex justify-between items-center text-xs text-slate-500 pt-2">
+                <span>Total Paid</span>
+                <span class="font-bold text-slate-900">₹{{ booking.total_amount|floatformat:2 }}</span>
+            </div>
+        </div>
+        <div class="flex justify-center space-x-3 pt-2">
+            <a href="{% url 'booking_voucher' booking.booking_reference %}" target="_blank" class="orange-gradient text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md">
+                View & Print E-Ticket
+            </a>
+            <a href="{% url 'my_bookings' %}" class="bg-slate-100 text-slate-700 font-bold text-xs px-6 py-3 rounded-xl">
+                Go to My Trips
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

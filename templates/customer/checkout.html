@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout | JustRelax{% endblock %}
+
+{% block content %}
+<div id="checkout-app" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" v-cloak>
+    <h1 class="text-3xl font-black text-slate-900 mb-6">Review & Complete Booking</h1>
+
+    <form method="POST" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {% csrf_token %}
+        <input type="hidden" name="post_base_total" value="{{ base_total }}">
+        <input type="hidden" name="post_tax_total" value="{{ taxes }}">
+        <input type="hidden" name="post_markup_total" value="{{ agent_markup }}">
+        <input type="hidden" name="coupon_code" :value="appliedCouponCode">
+
+        {% if booking_type == 'FLIGHT' %}
+            <input type="hidden" name="post_flight_instance_id" value="{{ flight_instance.id }}">
+            <input type="hidden" name="post_cabin_class" value="{{ cabin_class }}">
+            <input type="hidden" name="post_total_pax" value="{{ total_pax }}">
+        {% elif booking_type == 'HOTEL' %}
+            <input type="hidden" name="post_room_id" value="{{ room.id }}">
+            <input type="hidden" name="post_checkin" value="{{ checkin_date }}">
+            <input type="hidden" name="post_checkout" value="{{ checkout_date }}">
+            <input type="hidden" name="post_rooms_count" value="{{ rooms_count }}">
+            <input type="hidden" name="post_guests_count" value="{{ guests_count }}">
+            <input type="hidden" name="post_nights" value="{{ nights }}">
+        {% elif booking_type == 'PACKAGE' %}
+            <input type="hidden" name="post_package_id" value="{{ package.id }}">
+            <input type="hidden" name="post_travel_date" value="{{ travel_date }}">
+            <input type="hidden" name="post_travelers" value="{{ travelers }}">
+        {% endif %}
+
+        <div class="lg:col-span-8 space-y-6">
+            <!-- Traveler Contact Details -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+                <h3 class="font-bold text-slate-900 text-sm">Contact Information</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Full Name</label>
+                        <input type="text" name="contact_name" value="{{ user.first_name }} {{ user.last_name }}" required class="w-full text-xs font-bold p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Email</label>
+                        <input type="email" name="contact_email" value="{{ user.email }}" required class="w-full text-xs font-bold p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Phone</label>
+                        <input type="tel" name="contact_phone" value="{{ user.phone_number|default:'+91 9876543210' }}" required class="w-full text-xs font-bold p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+                <h3 class="font-bold text-slate-900 text-sm">Select Payment Method</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <label class="p-4 rounded-2xl border-2 cursor-pointer flex flex-col justify-between" :class="paymentMode === 'WALLET' ? 'border-brand-500 bg-brand-50/50' : 'border-slate-200'">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-xs">Wallet</span>
+                            <input type="radio" name="payment_method" value="WALLET" v-model="paymentMode">
+                        </div>
+                        <span class="text-xs text-slate-500 mt-2">Bal: ₹{{ wallet_balance }}</span>
+                    </label>
+                    <label class="p-4 rounded-2xl border-2 cursor-pointer flex flex-col justify-between" :class="paymentMode === 'UPI' ? 'border-brand-500 bg-brand-50/50' : 'border-slate-200'">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-xs">UPI</span>
+                            <input type="radio" name="payment_method" value="UPI" v-model="paymentMode">
+                        </div>
+                        <span class="text-xs text-slate-500 mt-2">GPay / PhonePe</span>
+                    </label>
+                    <label class="p-4 rounded-2xl border-2 cursor-pointer flex flex-col justify-between" :class="paymentMode === 'CARD' ? 'border-brand-500 bg-brand-50/50' : 'border-slate-200'">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-xs">Card</span>
+                            <input type="radio" name="payment_method" value="CARD" v-model="paymentMode">
+                        </div>
+                        <span class="text-xs text-slate-500 mt-2">Credit / Debit</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Summary -->
+        <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-3">
+                <span class="text-xs font-bold uppercase text-slate-400">Promo Code</span>
+                <div class="flex space-x-2">
+                    <input type="text" v-model="couponInput" placeholder="e.g. SAVE500" class="w-full text-xs font-bold uppercase p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                    <button type="button" @click="applyCoupon" class="bg-brand-600 text-white font-bold text-xs px-4 rounded-xl">Apply</button>
+                </div>
+                <p v-if="couponMessage" :class="couponValid ? 'text-emerald-600' : 'text-red-600'" class="text-xs font-bold" v-text="couponMessage"></p>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-lg space-y-4">
+                <h4 class="font-bold text-slate-900 text-sm">Fare Summary</h4>
+                <div class="space-y-2 text-xs text-slate-600">
+                    <div class="flex justify-between"><span>Base Fare</span><span class="font-bold">₹{{ base_total|floatformat:2 }}</span></div>
+                    <div class="flex justify-between"><span>Taxes & GST</span><span class="font-bold">₹{{ taxes|floatformat:2 }}</span></div>
+                    <div v-if="discountAmount > 0" class="flex justify-between text-emerald-600 font-bold">
+                        <span>Discount</span><span>-₹<span v-text="discountAmount.toFixed(2)"></span></span>
+                    </div>
+                </div>
+                <div class="border-t border-slate-100 pt-3 flex justify-between items-baseline">
+                    <span class="font-bold text-slate-900">Total Payable</span>
+                    <span class="text-2xl font-black text-brand-900">₹<span v-text="calculateTotal().toFixed(2)"></span></span>
+                </div>
+                <button type="submit" class="w-full orange-gradient text-white font-bold text-sm py-4 rounded-xl shadow-md mt-2">
+                    CONFIRM & PAY NOW
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const { createApp } = Vue;
+    createApp({
+        data() {
+            return {
+                paymentMode: 'WALLET',
+                couponInput: '',
+                appliedCouponCode: '',
+                discountAmount: 0.00,
+                couponMessage: '',
+                couponValid: false,
+                baseTotal: {{ base_total|default:0 }},
+                taxTotal: {{ taxes|default:0 }},
+                markupTotal: {{ agent_markup|default:0 }},
+            }
+        },
+        methods: {
+            async applyCoupon() {
+                if (!this.couponInput.trim()) return;
+                const gross = this.baseTotal + this.taxTotal + this.markupTotal;
+                try {
+                    const res = await fetch(`/bookings/api/validate-coupon/?code=${encodeURIComponent(this.couponInput.trim())}&amount=${gross}&service={{ booking_type }}`);
+                    const data = await res.json();
+                    if (data.valid) {
+                        this.couponValid = true;
+                        this.appliedCouponCode = data.code;
+                        this.discountAmount = data.discount_amount;
+                        this.couponMessage = data.message;
+                    } else {
+                        this.couponValid = false;
+                        this.discountAmount = 0.00;
+                        this.appliedCouponCode = '';
+                        this.couponMessage = data.message;
+                    }
+                } catch(e) {
+                    this.couponMessage = 'Failed to validate coupon.';
+                }
+            },
+            calculateTotal() {
+                return Math.max(0, (this.baseTotal + this.taxTotal + this.markupTotal) - this.discountAmount);
+            }
+        }
+    }).mount('#checkout-app');
+</script>
+{% endblock %}
+

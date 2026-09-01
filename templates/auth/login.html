@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In | JustRelax Multi-Portal Access{% endblock %}
+
+{% block content %}
+<div class="min-h-[85vh] flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl w-full bg-white rounded-3xl border border-slate-200/80 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[540px]">
+        
+        <!-- LEFT COLUMN: LUXURY BRAND & PORTAL HIGHLIGHTS (DESKTOP) -->
+        <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-950 p-8 text-white flex flex-col justify-between relative overflow-hidden">
+            <!-- AMBIENT BACKGROUND GLOW -->
+            <div class="absolute -top-16 -left-16 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-16 -right-16 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10 space-y-6">
+                <!-- BRAND LOGO BADGE -->
+                <div class="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full">
+                    <i class="ph-bold ph-paper-plane-tilt text-amber-400 text-sm"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-100">JustRelax Enterprise</span>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-2xl font-black text-white leading-tight">Unified Multi-Portal Access Engine</h2>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Single gateway for Customers, Registered B2B Travel Agencies, and SuperAdmin ERP controllers.
+                    </p>
+                </div>
+
+                <!-- PORTAL FEATURES LIST -->
+                <div class="space-y-3.5 pt-2">
+                    <div class="flex items-start space-x-3 text-xs">
+                        <div class="w-7 h-7 rounded-lg bg-orange-500/20 border border-orange-400/30 flex items-center justify-center shrink-0 mt-0.5 text-orange-400">
+                            <i class="ph-bold ph-suitcase text-sm"></i>
+                        </div>
+                        <div>
+                            <strong class="block text-slate-200">Customer Travel Desk</strong>
+                            <span class="text-[11px] text-slate-400">Instant flight, hotel, and luxury holiday package bookings.</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3 text-xs">
+                        <div class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-amber-400">
+                            <i class="ph-bold ph-buildings text-sm"></i>
+                        </div>
+                        <div>
+                            <strong class="block text-slate-200">B2B Agent Portal</strong>
+                            <span class="text-[11px] text-slate-400">Wholesale net rates, credit line management & markups.</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3 text-xs">
+                        <div class="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-400/30 flex items-center justify-center shrink-0 mt-0.5 text-purple-400">
+                            <i class="ph-bold ph-shield-check text-sm"></i>
+                        </div>
+                        <div>
+                            <strong class="block text-slate-200">SuperAdmin ERP Console</strong>
+                            <span class="text-[11px] text-slate-400">Full audit logging, inventory management & master CRUD.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER STATUS -->
+            <div class="relative z-10 pt-6 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-400">
+                <span class="flex items-center">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
+                    ERP Server Active
+                </span>
+                <span class="font-mono text-slate-500">v3.4.0 High-Density</span>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: AUTHENTICATION FORM & DEMO SWITCHER -->
+        <div class="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+            
+            <div class="space-y-5">
+                <!-- FORM HEADER -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-xl font-black text-slate-900">Sign In to Your Account</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">Select target portal or enter your account credentials.</p>
+                    </div>
+                    <span class="text-xs text-slate-400 font-mono hidden sm:inline">Secure SSO</span>
+                </div>
+
+                <!-- QUICK 1-CLICK DEMO ROLE SELECTOR -->
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-2">
+                    <div class="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
+                        <span>Quick 1-Click Demo Login</span>
+                        <span class="text-amber-600 font-mono">Auto Fill</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="fillLogin('customer_alex', 'pass123', 'customer')" id="roleBtnCustomer" class="role-btn p-2 rounded-xl border border-orange-200 bg-white text-slate-900 text-[11px] font-extrabold shadow-sm hover:bg-orange-50 transition flex items-center justify-center">
+                            <i class="ph-bold ph-user text-orange-500 mr-1.5 text-xs"></i> Customer
+                        </button>
+
+                        <button type="button" onclick="fillLogin('agent_roy', 'agent123', 'agent')" id="roleBtnAgent" class="role-btn p-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-[11px] font-extrabold shadow-sm hover:bg-amber-50 transition flex items-center justify-center">
+                            <i class="ph-bold ph-briefcase text-amber-500 mr-1.5 text-xs"></i> B2B Agent
+                        </button>
+
+                        <button type="button" onclick="fillLogin('admin', 'admin123', 'admin')" id="roleBtnAdmin" class="role-btn p-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-[11px] font-extrabold shadow-sm hover:bg-purple-50 transition flex items-center justify-center">
+                            <i class="ph-bold ph-key text-purple-600 mr-1.5 text-xs"></i> ERP Admin
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <form method="POST" class="space-y-4 text-xs font-bold">
+                    {% csrf_token %}
+                    
+                    <!-- USERNAME INPUT -->
+                    <div>
+                        <label class="block text-slate-700 mb-1 text-[11px]">Username or Account ID</label>
+                        <div class="relative flex items-center">
+                            <i class="ph-bold ph-user-circle absolute left-3.5 text-slate-400 text-lg pointer-events-none"></i>
+                            <input type="text" id="id_username" name="username" required placeholder="Enter your username..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-bold text-slate-900 transition">
+                        </div>
+                    </div>
+
+                    <!-- PASSWORD INPUT WITH SHOW/HIDE TOGGLE -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="text-slate-700 text-[11px]">Password</label>
+                        </div>
+                        <div class="relative flex items-center">
+                            <i class="ph-bold ph-lock-key absolute left-3.5 text-slate-400 text-lg pointer-events-none"></i>
+                            <input type="password" id="id_password" name="password" required placeholder="••••••••" class="w-full pl-10 pr-10 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-bold text-slate-900 transition">
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3.5 text-slate-400 hover:text-slate-600 text-base flex items-center justify-center p-1" title="Toggle password visibility">
+                                <i id="passwordEyeIcon" class="ph-bold ph-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit" id="submit_btn" class="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-black text-xs py-3.5 rounded-xl shadow-lg shadow-orange-500/20 transition duration-200 flex items-center justify-center">
+                        <i id="submitBtnIcon" class="ph-bold ph-sign-in mr-2 text-base"></i>
+                        <span id="submitBtnText">SIGN IN TO PORTAL</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- REGISTRATION & ONBOARDING LINKS -->
+            <div class="pt-4 border-t border-slate-100 text-xs space-y-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-slate-600">
+                    <div>
+                        <span>New Customer?</span>
+                        <a href="{% url 'register_customer' %}" class="text-blue-600 font-extrabold hover:underline ml-1">Create Account</a>
+                    </div>
+                    <div>
+                        <a href="{% url 'register_agent' %}" class="text-amber-700 font-extrabold hover:underline flex items-center">
+                            Register B2B Agent Agency <i class="ph-bold ph-arrow-right ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function togglePasswordVisibility() {
+        const passInput = document.getElementById('id_password');
+        const eyeIcon = document.getElementById('passwordEyeIcon');
+
+        if (passInput.type === 'password') {
+            passInput.type = 'text';
+            eyeIcon.className = 'ph-bold ph-eye-slash';
+        } else {
+            passInput.type = 'password';
+            eyeIcon.className = 'ph-bold ph-eye';
+        }
+    }
+
+    function fillLogin(u, p, role) {
+        document.getElementById('id_username').value = u;
+        document.getElementById('id_password').value = p;
+
+        const btn = document.getElementById('submit_btn');
+        const btnText = document.getElementById('submitBtnText');
+
+        // Reset all role buttons
+        document.querySelectorAll('.role-btn').forEach(b => {
+            b.classList.remove('bg-orange-50', 'bg-amber-50', 'bg-purple-50', 'ring-2', 'ring-orange-500', 'ring-amber-500', 'ring-purple-500');
+        });
+
+        if (role === 'agent') {
+            document.getElementById('roleBtnAgent').classList.add('bg-amber-50', 'ring-2', 'ring-amber-500');
+            btn.className = 'w-full bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 font-black text-xs py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition duration-200 flex items-center justify-center';
+            btnText.innerText = 'SIGN IN TO B2B AGENT DESK';
+        } else if (role === 'admin') {
+            document.getElementById('roleBtnAdmin').classList.add('bg-purple-50', 'ring-2', 'ring-purple-500');
+            btn.className = 'w-full bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white font-black text-xs py-3.5 rounded-xl shadow-lg shadow-purple-600/20 transition duration-200 flex items-center justify-center';
+            btnText.innerText = 'SIGN IN TO SUPERADMIN ERP';
+        } else {
+            document.getElementById('roleBtnCustomer').classList.add('bg-orange-50', 'ring-2', 'ring-orange-500');
+            btn.className = 'w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-black text-xs py-3.5 rounded-xl shadow-lg shadow-orange-500/20 transition duration-200 flex items-center justify-center';
+            btnText.innerText = 'SIGN IN TO CUSTOMER PORTAL';
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,422 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SuperAdmin Executive ERP | JustRelax Modern Console{% endblock %}</title>
+
+    <!-- Favicon Icon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon.png' %}">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            500: '#0084ff',
+                            600: '#0066cc',
+                            900: '#051329',
+                        },
+                        admin: {
+                            accent: '#2563eb',
+                            dark: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .admin-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .admin-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .compact-table th {
+            padding: 8px 12px !important;
+            font-size: 11px !important;
+            white-space: nowrap !important;
+        }
+        .compact-table td {
+            padding: 8px 12px !important;
+            font-size: 12px !important;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen flex bg-slate-50 antialiased text-slate-800">
+
+    <!-- FLOATING TOP-RIGHT TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col space-y-2 max-w-sm w-full pointer-events-none">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast-item pointer-events-auto p-3.5 rounded-xl text-xs font-bold shadow-2xl border flex items-center justify-between transition-all transform translate-x-0 bg-white border-slate-200 text-slate-900 shadow-slate-300/80 animate-bounce-short">
+                    <div class="flex items-center space-x-2.5">
+                        <i class="ph-bold {% if message.tags == 'error' %}ph-x-circle text-rose-500{% elif message.tags == 'warning' %}ph-warning-octagon text-amber-500{% else %}ph-check-circle text-emerald-500{% endif %} text-lg"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 ml-3 text-base">&times;</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- ADMIN ERP LEFT SIDEBAR NAVIGATION (LIGHT THEME) -->
+    <aside class="w-60 bg-white text-slate-700 flex flex-col shrink-0 border-r border-slate-200 fixed inset-y-0 z-40 shadow-sm">
+        
+        <!-- SIDEBAR BRAND HEADER -->
+        <div class="h-14 px-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
+            <a href="{% url 'admin_dashboard' %}" class="flex items-center space-x-2">
+                <img src="{% static 'img/logo_rb.png' %}" alt="JustRelax Logo" class="h-7 w-auto object-contain">
+                <div>
+                    <span class="text-base font-black tracking-tight text-slate-900 block leading-none">Just<span class="text-blue-600">Relax</span></span>
+                    <span class="text-[9px] font-bold uppercase tracking-wider text-blue-700 block mt-0.5">ERP SuperAdmin</span>
+                </div>
+            </a>
+            <span class="text-[9px] font-extrabold uppercase bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded border border-blue-200">Light</span>
+        </div>
+
+        <!-- NAVIGATION LINKS -->
+        <div class="flex-1 overflow-y-auto admin-scrollbar p-2.5 space-y-4">
+            
+            <!-- GROUP 1: EXECUTIVE DASHBOARD -->
+            <div>
+                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 px-2 block mb-1.5">Executive Command</span>
+                <nav class="space-y-0.5">
+                    <a href="{% url 'admin_dashboard' %}" class="flex items-center space-x-2 px-2.5 py-2 rounded-lg font-bold text-xs transition-colors {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-blue-600 text-white shadow-sm shadow-blue-600/30{% else %}hover:bg-slate-100 text-slate-700{% endif %}">
+                        <i class="ph-duotone ph-squares-four text-base"></i>
+                        <span>ERP Dashboard</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- GROUP 2: MASTER DATABASE RECORDS -->
+            <div>
+                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 px-2 block mb-1.5">Master Database Records</span>
+                <nav class="space-y-0.5">
+                    <a href="{% url 'admin_agents' %}" class="flex items-center space-x-2 px-2.5 py-2 rounded-lg font-bold text-xs transition-colors {% if request.resolver_match.url_name == 'admin_agents' %}bg-blue-600 text-white shadow-sm shadow-blue-600/30{% else %}hover:bg-slate-100 text-slate-700{% endif %}">
+                        <i class="ph-duotone ph-users-three text-base"></i>
+                        <span>B2B Travel Agents</span>
+                    </a>
+
+                    <a href="{% url 'admin_users' %}" class="flex items-center space-x-2 px-2.5 py-2 rounded-lg font-bold text-xs transition-colors {% if request.resolver_match.url_name == 'admin_users' %}bg-blue-600 text-white shadow-sm shadow-blue-600/30{% else %}hover:bg-slate-100 text-slate-700{% endif %}">
+                        <i class="ph-duotone ph-user-gear text-base"></i>
+                        <span>Customer Accounts</span>
+                    </a>
+
+                    <a href="{% url 'admin_flights' %}" class="flex items-center space-x-2 px-2.5 py-2 rounded-lg font-bold text-xs transition-colors {% if request.resolver_match.url_name == 'admin_flights' %}bg-blue-600 text-white shadow-sm shadow-blue-600/30{% else %}hover:bg-slate-100 text-slate-700{% endif %}">
+                        <i class="ph-duotone ph-airplane text-base"></i>
+                        <span>Master Flights</span>
+                    </a>
+
+                    <a href="{% url 'admin_hotels' %}" class="flex items-center space-x-2 px-2.5 py-2 rounded-lg font-bold text-xs transition-colors {% if request.resolver_match.url_name == 'admin_hotels' %}bg-blue-600 text-white shadow-sm shadow-blue-600/30{% else %}hover:bg-slate-100 text-slate-700{% endif %}">
+                        <i class="ph-duotone ph-buildings text-base"></i>
+                        <span>Master Hotels</span>
+                    </a>
+
+                    <a href="{% url 'admin_packages' %}" class="flex items-center space-x-2 px-2.5 py-2 rounded-lg font-bold text-xs transition-colors {% if request.resolver_match.url_name == 'admin_packages' %}bg-blue-600 text-white shadow-sm shadow-blue-600/30{% else %}hover:bg-slate-100 text-slate-700{% endif %}">
+                        <i class="ph-duotone ph-island text-base"></i>
+                        <span>Master Packages</span>
+                    </a>
+
+                    <a href="{% url 'admin_coupons' %}" class="flex items-center space-x-2 px-2.5 py-2 rounded-lg font-bold text-xs transition-colors {% if request.resolver_match.url_name == 'admin_coupons' %}bg-blue-600 text-white shadow-sm shadow-blue-600/30{% else %}hover:bg-slate-100 text-slate-700{% endif %}">
+                        <i class="ph-duotone ph-ticket text-base"></i>
+                        <span>Promo Coupons</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- GROUP 3: LEDGERS & AUDITS -->
+            <div>
+                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 px-2 block mb-1.5">Ledger & Audit</span>
+                <nav class="space-y-0.5">
+                    <a href="{% url 'admin_bookings' %}" class="flex items-center space-x-2 px-2.5 py-2 rounded-lg font-bold text-xs transition-colors {% if request.resolver_match.url_name == 'admin_bookings' %}bg-blue-600 text-white shadow-sm shadow-blue-600/30{% else %}hover:bg-slate-100 text-slate-700{% endif %}">
+                        <i class="ph-duotone ph-receipt text-base"></i>
+                        <span>Booking Ledger</span>
+                    </a>
+
+                    <a href="{% url 'admin_logs' %}" class="flex items-center space-x-2 px-2.5 py-2 rounded-lg font-bold text-xs transition-colors {% if request.resolver_match.url_name == 'admin_logs' %}bg-blue-600 text-white shadow-sm shadow-blue-600/30{% else %}hover:bg-slate-100 text-slate-700{% endif %}">
+                        <i class="ph-duotone ph-clock-counter-clockwise text-base"></i>
+                        <span>System Audit History</span>
+                    </a>
+
+                    <a href="{% url 'profile' %}" class="flex items-center space-x-2 px-2.5 py-2 rounded-lg font-bold text-xs transition-colors {% if request.resolver_match.url_name == 'profile' %}bg-blue-600 text-white shadow-sm shadow-blue-600/30{% else %}hover:bg-slate-100 text-slate-700{% endif %}">
+                        <i class="ph-duotone ph-user-gear text-base"></i>
+                        <span>My ERP Profile</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- SIDEBAR FOOTER -->
+        <div class="p-2.5 bg-slate-50 border-t border-slate-200 space-y-1.5">
+            <a href="{% url 'profile' %}" class="flex items-center space-x-2 p-1.5 rounded-lg bg-white hover:bg-blue-50/60 border border-slate-200 shadow-sm group transition">
+                <div class="w-7 h-7 rounded-lg bg-blue-600 text-white font-black flex items-center justify-center text-xs shrink-0 overflow-hidden">
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="Avatar" class="w-full h-full object-cover">
+                    {% else %}
+                        {{ user.username|slice:":1"|upper }}
+                    {% endif %}
+                </div>
+                <div class="min-w-0 flex-1">
+                    <span class="text-xs font-bold text-slate-900 block truncate group-hover:text-blue-600">{{ user.username }}</span>
+                    <span class="text-[9px] text-blue-700 font-semibold block uppercase">SUPER ADMIN</span>
+                </div>
+                <i class="ph-bold ph-pencil-simple text-slate-400 group-hover:text-blue-600 text-xs"></i>
+            </a>
+
+            <div class="flex items-center justify-between pt-0.5 text-[11px] font-bold">
+                <a href="{% url 'home' %}" target="_blank" class="text-slate-500 hover:text-blue-600 flex items-center transition">
+                    <i class="ph-bold ph-arrow-square-out mr-1"></i> Customer Site
+                </a>
+                <a href="{% url 'logout' %}" class="text-rose-600 hover:text-rose-700 flex items-center transition">
+                    <i class="ph-bold ph-sign-out mr-1"></i> Logout
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <div class="flex-1 ml-60 flex flex-col min-w-0 min-h-screen">
+        
+        <!-- ADMIN TOPBAR HEADER (LIGHT THEME) -->
+        <header class="h-14 bg-white border-b border-slate-200 sticky top-0 z-30 px-5 flex items-center justify-between shadow-sm">
+            
+            <!-- LEFT TITLE BADGE -->
+            <div class="flex items-center space-x-3">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-black uppercase text-slate-800 tracking-wider">
+                    ERP SUPERADMIN • LIGHT MODE COMPACT
+                </span>
+            </div>
+
+            <!-- RIGHT ACTIONS -->
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'home' %}" target="_blank" class="text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 transition flex items-center">
+                    <i class="ph-bold ph-planet mr-1.5"></i> Open Storefront
+                </a>
+
+                <div class="h-4 w-px bg-slate-200"></div>
+
+                <a href="{% url 'profile' %}" title="View & Edit Profile" class="flex items-center space-x-2 p-1.5 rounded-xl hover:bg-slate-100 transition border border-transparent hover:border-slate-200">
+                    <div class="w-6 h-6 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center overflow-hidden shrink-0">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="Avatar" class="w-full h-full object-cover">
+                        {% else %}
+                            {{ user.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <span class="text-xs font-bold text-slate-700 hidden sm:inline">{{ user.email }}</span>
+                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">SUPERADMIN</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- MAIN PAGE CONTENT BLOCK -->
+        <main class="flex-1 p-4 sm:p-5">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="py-3 px-6 border-t border-slate-200 bg-white text-center text-xs text-slate-400 font-medium flex justify-between items-center">
+            <span>&copy; 2026 JustRelax Master ERP System</span>
+            <span class="font-mono text-[10px] text-slate-500">Light Compact UI Mode</span>
+        </footer>
+    </div>
+
+    <!-- GLOBAL IMAGE VIEWER MODAL -->
+    <div id="globalImageViewerModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl p-4 max-w-2xl w-full border border-slate-200 shadow-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <h3 id="imageViewerTitle" class="text-sm font-black text-slate-900">Property / Master Image Preview</h3>
+                <button onclick="closeImageViewer()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
+            </div>
+            <div class="w-full h-80 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200">
+                <img id="imageViewerImg" src="" alt="Preview" class="w-full h-full object-contain">
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOBAL RECORD HISTORY AUDIT MODAL -->
+    <div id="recordHistoryModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl p-5 max-w-xl w-full border border-slate-200 shadow-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div>
+                    <span class="text-[9px] font-bold text-purple-600 uppercase tracking-widest block">Audit History Trail</span>
+                    <h3 id="historyModalTitle" class="text-sm font-black text-slate-900">Master Record Lifecycle</h3>
+                </div>
+                <button onclick="document.getElementById('recordHistoryModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
+            </div>
+
+            <div id="historyModalContent" class="space-y-2 max-h-80 overflow-y-auto admin-scrollbar p-1 text-xs">
+                <!-- Loaded dynamically via AJAX -->
+                <div class="p-6 text-center text-slate-400 font-bold">Loading record history...</div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 flex justify-end">
+                <button type="button" onclick="document.getElementById('recordHistoryModal').classList.add('hidden')" class="px-4 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto dismiss top-right toast messages after 5 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.toast-item').forEach(el => {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 300);
+            });
+        }, 5000);
+
+        function openImageViewer(url, title) {
+            document.getElementById('imageViewerImg').src = url;
+            document.getElementById('imageViewerTitle').innerText = title || 'Image Preview';
+            document.getElementById('globalImageViewerModal').classList.remove('hidden');
+        }
+        function closeImageViewer() {
+            document.getElementById('globalImageViewerModal').classList.add('hidden');
+        }
+
+        function openRecordHistory(type, id) {
+            const modal = document.getElementById('recordHistoryModal');
+            const titleEl = document.getElementById('historyModalTitle');
+            const contentEl = document.getElementById('historyModalContent');
+
+            contentEl.innerHTML = '<div class="p-6 text-center text-slate-400 font-bold">Loading audit history trail...</div>';
+            modal.classList.remove('hidden');
+
+            fetch(`/admin-panel/api/history/${type}/${id}/`)
+                .then(r => r.json())
+                .then(data => {
+                    titleEl.innerText = data.title;
+                    if (!data.history || data.history.length === 0) {
+                        contentEl.innerHTML = '<div class="p-6 text-center text-slate-400 font-bold">No history log records found for this entry.</div>';
+                        return;
+                    }
+                    let html = '';
+                    data.history.forEach(item => {
+                        html += `
+                            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-start justify-between">
+                                <div>
+                                    <span class="bg-purple-100 text-purple-800 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">${item.event}</span>
+                                    <p class="text-xs font-bold text-slate-800 mt-1">${item.details}</p>
+                                </div>
+                                <span class="text-[10px] font-mono text-slate-400 shrink-0 ml-2">${item.timestamp}</span>
+                            </div>
+                        `;
+                    });
+                    contentEl.innerHTML = html;
+                })
+                .catch(() => {
+                    contentEl.innerHTML = '<div class="p-6 text-center text-rose-500 font-bold">Failed to load record audit history.</div>';
+                });
+        }
+
+        // Generic Client-Side Table Pagination & Checkbox Toggle Helper
+        function setupTablePagination(tableContainerId, pageSize = 10) {
+            const container = document.getElementById(tableContainerId);
+            if (!container) return;
+            const table = container.querySelector('table');
+            if (!table) return;
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => !r.innerText.includes('No master'));
+            
+            let currentPage = 1;
+            let currentSize = pageSize;
+
+            function render() {
+                const total = rows.length;
+                const totalPages = Math.ceil(total / currentSize) || 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+
+                const start = (currentPage - 1) * currentSize;
+                const end = start + currentSize;
+
+                rows.forEach((row, idx) => {
+                    if (idx >= start && idx < end) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                const countEl = container.querySelector('.table-count-text');
+                if (countEl) {
+                    countEl.innerText = `Showing ${total ? start + 1 : 0}-${Math.min(end, total)} of ${total} records`;
+                }
+
+                const pageEl = container.querySelector('.table-page-info');
+                if (pageEl) {
+                    pageEl.innerText = `Page ${currentPage} of ${totalPages}`;
+                }
+            }
+
+            const sizeSelect = container.querySelector('.table-page-size');
+            if (sizeSelect) {
+                sizeSelect.addEventListener('change', (e) => {
+                    currentSize = parseInt(e.target.value);
+                    currentPage = 1;
+                    render();
+                });
+            }
+
+            const prevBtn = container.querySelector('.table-prev-btn');
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        render();
+                    }
+                });
+            }
+
+            const nextBtn = container.querySelector('.table-next-btn');
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    const totalPages = Math.ceil(rows.length / currentSize) || 1;
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        render();
+                    }
+                });
+            }
+
+            render();
+        }
+
+        function toggleAllCheckboxes(masterCb) {
+            const table = masterCb.closest('table');
+            if (!table) return;
+            const checkboxes = table.querySelectorAll('tbody .row-cb');
+            checkboxes.forEach(cb => cb.checked = masterCb.checked);
+        }
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

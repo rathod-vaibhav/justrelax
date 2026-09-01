@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ package.title }} | JustRelax Tour Packages{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- PACKAGE HEADER & MULTI-PHOTO CAROUSEL -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center space-x-2 mb-1">
+                    <span class="bg-amber-50 text-amber-800 text-xs font-bold px-3 py-1 rounded-full border border-amber-200">
+                        {{ package.duration_formatted }}
+                    </span>
+                    <span class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full border border-blue-200">
+                        {{ package.category.name|default:'Holiday Package' }}
+                    </span>
+                </div>
+                <h1 class="text-3xl font-black text-slate-900">{{ package.title }}</h1>
+                <p class="text-xs text-slate-500 mt-1 flex items-center">
+                    <i class="ph-bold ph-map-pin mr-1 text-amber-600"></i> {{ package.destination_city }} • {{ package.country }}
+                </p>
+            </div>
+
+            <div class="text-right">
+                <span class="text-xs text-slate-400 block">Starting from / person</span>
+                <span class="text-3xl font-black text-brand-900">₹{{ display_price|floatformat:0 }}</span>
+            </div>
+        </div>
+
+        <!-- MULTI-PHOTO SLIDE CAROUSEL -->
+        <div class="space-y-3">
+            <h3 class="text-xs font-black uppercase text-slate-400 tracking-wider">Destination Tour Photo Gallery</h3>
+            
+            <div class="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-inner group">
+                {% if package.hero_image %}
+                    <img id="mainPkgGalleryImg" src="{{ package.hero_image.url }}" alt="{{ package.title }}" class="w-full h-full object-cover transition-all duration-300">
+                {% else %}
+                    <div id="mainPkgGalleryImg" class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold">
+                        No image uploaded
+                    </div>
+                {% endif %}
+
+                <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent p-4 flex items-center justify-between text-white">
+                    <span id="pkgGalleryCaption" class="text-xs font-bold">{{ package.title }} Hero Cover</span>
+                    <span class="text-xs font-mono bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-sm">Slide Gallery</span>
+                </div>
+            </div>
+
+            <!-- THUMBNAIL STRIP -->
+            <div class="flex items-center space-x-3 overflow-x-auto pb-2 scrollbar-thin">
+                {% if package.hero_image %}
+                    <button type="button" onclick="switchPkgGallerySlide('{{ package.hero_image.url }}', 'Main Package View')" class="w-24 h-16 rounded-xl overflow-hidden border-2 border-amber-500 shrink-0 shadow-sm focus:outline-none transition">
+                        <img src="{{ package.hero_image.url }}" alt="Thumbnail" class="w-full h-full object-cover">
+                    </button>
+                {% endif %}
+
+                {% for img_obj in package.gallery.all %}
+                    <button type="button" onclick="switchPkgGallerySlide('{{ img_obj.image.url }}', 'Tour Photo #{{ forloop.counter }}')" class="w-24 h-16 rounded-xl overflow-hidden border-2 border-slate-200 hover:border-amber-500 shrink-0 shadow-sm focus:outline-none transition">
+                        <img src="{{ img_obj.image.url }}" alt="Gallery" class="w-full h-full object-cover">
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900 mb-1">Overview</h3>
+            <p class="text-xs text-slate-600 leading-relaxed max-w-4xl">{{ package.overview }}</p>
+        </div>
+    </div>
+
+    <!-- ITINERARY & BOOKING FORM -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm space-y-6">
+            <h2 class="text-xl font-black text-slate-900">Day-by-Day Itinerary</h2>
+            <div class="space-y-4">
+                {% for day in itinerary_days %}
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-slate-900 text-sm">Day {{ day.day_number }}: {{ day.title }}</h3>
+                            <span class="text-xs text-emerald-600 font-bold">{{ day.meals_info }}</span>
+                        </div>
+                        <p class="text-xs text-slate-600">{{ day.description }}</p>
+                        <p class="text-[11px] text-slate-500 font-semibold">Stay: {{ day.stay_info }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="lg:col-span-4 bg-white rounded-3xl p-6 border border-slate-200 shadow-lg space-y-4 h-fit sticky top-20">
+            <div>
+                <span class="text-xs text-slate-400 block">Starting from / person</span>
+                <span class="text-3xl font-black text-slate-900">₹{{ display_price|floatformat:0 }}</span>
+            </div>
+
+            <form action="{% url 'checkout' %}" method="GET" class="space-y-3 pt-4 border-t border-slate-100">
+                <input type="hidden" name="type" value="PACKAGE">
+                <input type="hidden" name="package_id" value="{{ package.id }}">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Travel Date</label>
+                    <input type="date" name="travel_date" required class="w-full text-xs font-bold p-3 bg-slate-50 rounded-xl border border-slate-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Travelers</label>
+                    <select name="travelers" class="w-full text-xs font-bold p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <option value="1">1 Adult</option>
+                        <option value="2" selected>2 Adults</option>
+                        <option value="3">3 Adults</option>
+                        <option value="4">4 Adults</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full orange-gradient text-white font-bold text-sm py-3.5 rounded-xl transition shadow-md">
+                    Proceed to Booking
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchPkgGallerySlide(url, caption) {
+        const img = document.getElementById('mainPkgGalleryImg');
+        const cap = document.getElementById('pkgGalleryCaption');
+        if (img) {
+            img.style.opacity = '0.3';
+            setTimeout(() => {
+                img.src = url;
+                img.style.opacity = '1';
+            }, 150);
+        }
+        if (cap) cap.innerText = caption;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Holiday Packages | JustRelax{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div class="hero-gradient text-white rounded-3xl p-8 shadow-xl">
+        <h1 class="text-3xl font-black">All-Inclusive Holiday Packages</h1>
+        <p class="text-xs text-slate-300">Curated itineraries, handpicked 4-star & 5-star stays, and private transfers.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {% for item in packages %}
+            <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+                {% if item.package.hero_image %}
+                    <div class="w-full h-44 overflow-hidden border-b border-slate-100">
+                        <img src="{{ item.package.hero_image.url }}" alt="{{ item.package.title }}" class="w-full h-full object-cover">
+                    </div>
+                {% endif %}
+
+                <div class="p-6 space-y-3">
+                    <span class="bg-amber-50 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">{{ item.package.duration_formatted }}</span>
+                    <h3 class="text-xl font-bold text-slate-900">{{ item.package.title }}</h3>
+                    <p class="text-xs text-slate-500">{{ item.package.destination_city }} • {{ item.package.category.name }}</p>
+                    <p class="text-xs text-slate-600 line-clamp-3">{{ item.package.overview }}</p>
+                </div>
+                <div class="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-400 block">From / person</span>
+                        <span class="text-2xl font-black text-brand-900">₹{{ item.display_price|floatformat:0 }}</span>
+                    </div>
+                    <a href="{% url 'package_detail' item.package.slug %}" class="orange-gradient text-white text-xs font-bold px-4 py-2.5 rounded-xl">View Details</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

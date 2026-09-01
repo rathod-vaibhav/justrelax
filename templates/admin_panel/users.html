@@ -1,0 +1,149 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}User Directory | JustRelax ERP{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div>
+            <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block">Master Directory</span>
+            <h1 class="text-xl font-black text-slate-900">User Accounts Directory</h1>
+            <p class="text-xs text-slate-500">Compact table directory of customer and staff accounts with role elevation.</p>
+        </div>
+    </div>
+
+    <!-- USERS COMPACT TABLE -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-4">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left compact-table">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 font-black uppercase tracking-wider border-b border-slate-200">
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium text-xs">
+                    {% for u in users %}
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="font-bold text-slate-900">
+                                <span class="block font-black text-sm">{{ u.username }}</span>
+                                <span class="text-[10px] text-slate-400 font-mono">ID: #{{ u.id }}</span>
+                            </td>
+                            <td class="text-slate-700 font-mono">{{ u.email|default:'N/A' }}</td>
+                            <td class="text-slate-700 font-mono">{{ u.phone_number|default:'N/A' }}</td>
+                            <td>
+                                <span class="bg-blue-100 text-blue-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
+                                    {{ u.get_role_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if u.is_active %}
+                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">ACTIVE</span>
+                                {% else %}
+                                    <span class="bg-rose-100 text-rose-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">SUSPENDED</span>
+                                {% endif %}
+                            </td>
+                            <td class="font-mono text-slate-500 text-[11px]">{{ u.created_at|date:"Y-m-d" }}</td>
+                            <td class="text-right space-x-1 whitespace-nowrap">
+                                <button type="button" onclick="openEditUserModal('{{ u.id }}', '{{ u.username|escapejs }}', '{{ u.email|escapejs }}', '{{ u.phone_number|default:''|escapejs }}', '{{ u.role }}', '{{ u.is_active|yesno:'true,false' }}')" title="Edit Record" class="text-amber-700 hover:text-amber-900 p-1.5 bg-amber-50 hover:bg-amber-100 rounded-lg transition inline-flex items-center justify-center">
+                                    <i class="ph-bold ph-pencil-simple text-base"></i>
+                                </button>
+
+                                <button type="button" onclick="openRecordHistory('user', '{{ u.id }}')" title="View Audit History" class="text-purple-700 hover:text-purple-900 p-1.5 bg-purple-50 hover:bg-purple-100 rounded-lg transition inline-flex items-center justify-center">
+                                    <i class="ph-bold ph-clock-counter-clockwise text-base"></i>
+                                </button>
+
+                                <form method="POST" action="{% url 'admin_delete_master' 'user' u.id %}" onsubmit="return confirm('Delete user {{ u.username }}?')" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" title="Delete Record" class="text-rose-600 hover:text-rose-800 p-1.5 bg-rose-50 hover:bg-rose-100 rounded-lg transition inline-flex items-center justify-center">
+                                        <i class="ph-bold ph-trash text-base"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="p-8 text-center text-slate-400 font-bold">No user accounts found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div id="editUserModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="text-base font-black text-slate-900">Edit User Account</h3>
+            <button onclick="document.getElementById('editUserModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
+        </div>
+
+        <form method="POST" class="space-y-3 text-xs font-bold">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="EDIT">
+            <input type="hidden" id="edit_user_id" name="user_id">
+            
+            <div>
+                <label class="block text-slate-700 mb-1">Username (Read-only)</label>
+                <input type="text" id="edit_user_name" disabled class="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500">
+            </div>
+
+            <div>
+                <label class="block text-slate-700 mb-1">Email Address</label>
+                <input type="email" id="edit_user_email" name="email" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-slate-700 mb-1">Phone Number</label>
+                    <input type="text" id="edit_user_phone" name="phone_number" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
+                </div>
+                <div>
+                    <label class="block text-slate-700 mb-1">Role</label>
+                    <select id="edit_user_role" name="role" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                        {% for r_code, r_name in roles %}
+                            <option value="{{ r_code }}">{{ r_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-slate-700 mb-1">Account Active Status</label>
+                <select id="edit_user_active" name="is_active" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <option value="true">Active Account</option>
+                    <option value="false">Suspended / Disabled</option>
+                </select>
+            </div>
+
+            <div class="pt-2 flex justify-end space-x-2">
+                <button type="button" onclick="document.getElementById('editUserModal').classList.add('hidden')" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold">Cancel</button>
+                <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-md">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script>
+    function openEditUserModal(id, uname, email, phone, role, active) {
+        document.getElementById('edit_user_id').value = id;
+        document.getElementById('edit_user_name').value = uname;
+        document.getElementById('edit_user_email').value = email;
+        document.getElementById('edit_user_phone').value = phone;
+        document.getElementById('edit_user_role').value = role;
+        document.getElementById('edit_user_active').value = active;
+        document.getElementById('editUserModal').classList.remove('hidden');
+    }
+</script>
+{% endblock %}
+{% endblock %}

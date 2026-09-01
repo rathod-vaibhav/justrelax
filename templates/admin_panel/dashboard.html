@@ -1,0 +1,167 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}ERP SuperAdmin Executive Dashboard | JustRelax{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+    <!-- HERO WELCOME BANNER (LIGHT COMPACT) -->
+    <div class="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 text-white rounded-2xl p-5 sm:p-6 shadow-md border border-blue-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+                <span class="bg-white/20 backdrop-blur-sm text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-white/30">SuperAdmin Center</span>
+                <span class="text-xs text-blue-200 font-mono">Live ERP Analytics</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-black text-white">System Command & Master Ledger</h1>
+            <p class="text-xs text-blue-100 max-w-xl">Central administrative control for Flights, Hotels, Tour Packages, Agent KYC, and Bookings.</p>
+        </div>
+
+        <div class="flex items-center space-x-3 shrink-0">
+            <div class="bg-white/10 backdrop-blur-sm p-3 rounded-xl border border-white/20 text-right">
+                <span class="text-[10px] text-blue-200 font-bold uppercase block">Confirmed GMV</span>
+                <span class="text-xl font-black text-white font-mono">₹{{ total_gmv|floatformat:0 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- METRIC KPI CARDS -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- CARD 1: CONFIRMED BOOKINGS -->
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Bookings</span>
+                <i class="ph-duotone ph-receipt text-blue-600 text-xl"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900 mt-1 block">{{ total_bookings }}</span>
+            <span class="text-[10px] text-emerald-600 font-bold flex items-center mt-1">
+                Confirmed: <strong class="ml-1 text-slate-900">{{ confirmed_bookings }}</strong>
+            </span>
+        </div>
+
+        <!-- CARD 2: TOTAL GMV REVENUE -->
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Gross Sales GMV</span>
+                <i class="ph-duotone ph-currency-inr text-emerald-600 text-xl"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900 mt-1 block">₹{{ total_gmv|floatformat:0 }}</span>
+            <span class="text-[10px] text-slate-500 font-medium block mt-1">
+                Tax Collected: ₹{{ total_tax_collected|floatformat:0 }}
+            </span>
+        </div>
+
+        <!-- CARD 3: AGENTS & KYC -->
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">B2B Partners</span>
+                <i class="ph-duotone ph-users-three text-amber-500 text-xl"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900 mt-1 block">{{ total_agents }}</span>
+            <span class="text-[10px] text-amber-700 font-bold block mt-1">
+                Pending KYC Audit: <strong class="text-amber-900">{{ pending_kyc }}</strong>
+            </span>
+        </div>
+
+        <!-- CARD 4: MASTER ITEMS -->
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Registered Masters</span>
+                <i class="ph-duotone ph-database text-purple-600 text-xl"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900 mt-1 block">{{ total_hotels|add:total_packages }}</span>
+            <span class="text-[10px] text-slate-500 font-medium block mt-1">
+                Hotels: {{ total_hotels }} • Packages: {{ total_packages }}
+            </span>
+        </div>
+    </div>
+
+    <!-- QUICK MASTER DIRECTORY SHORTCUTS -->
+    <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm space-y-3">
+        <h3 class="text-sm font-extrabold text-slate-900">Master Data Control Desks</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <a href="{% url 'admin_hotels' %}" class="p-3 rounded-xl bg-blue-50/70 border border-blue-200 hover:border-blue-500 transition group flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-blue-700 uppercase block">Master Directory</span>
+                    <h4 class="text-sm font-black text-slate-900 group-hover:text-blue-600">Hotels ({{ total_hotels }})</h4>
+                </div>
+                <i class="ph-duotone ph-buildings text-xl text-blue-600"></i>
+            </a>
+
+            <a href="{% url 'admin_packages' %}" class="p-3 rounded-xl bg-amber-50/70 border border-amber-200 hover:border-amber-500 transition group flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-amber-700 uppercase block">Master Directory</span>
+                    <h4 class="text-sm font-black text-slate-900 group-hover:text-amber-600">Packages ({{ total_packages }})</h4>
+                </div>
+                <i class="ph-duotone ph-island text-xl text-amber-600"></i>
+            </a>
+
+            <a href="{% url 'admin_flights' %}" class="p-3 rounded-xl bg-purple-50/70 border border-purple-200 hover:border-purple-500 transition group flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-purple-700 uppercase block">Master Directory</span>
+                    <h4 class="text-sm font-black text-slate-900 group-hover:text-purple-600">Flights ({{ total_flights }})</h4>
+                </div>
+                <i class="ph-duotone ph-airplane text-xl text-purple-600"></i>
+            </a>
+
+            <a href="{% url 'admin_agents' %}" class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 hover:border-emerald-500 transition group flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-emerald-700 uppercase block">KYC Verification</span>
+                    <h4 class="text-sm font-black text-slate-900 group-hover:text-emerald-600">Agents ({{ total_agents }})</h4>
+                </div>
+                <i class="ph-duotone ph-users-three text-xl text-emerald-600"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- RECENT SYSTEM BOOKINGS LEDGER -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-4 space-y-3">
+        <div class="flex items-center justify-between">
+            <h3 class="text-sm font-extrabold text-slate-900">Recent Master Booking Transactions</h3>
+            <a href="{% url 'admin_bookings' %}" class="text-xs font-bold text-blue-600 hover:underline">View Full Ledger →</a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left compact-table">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 font-black uppercase tracking-wider border-b border-slate-200">
+                        <th>Reference / PNR</th>
+                        <th>Type</th>
+                        <th>Customer / Passenger</th>
+                        <th>Gross Fare</th>
+                        <th>Status</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium text-xs">
+                    {% for bk in recent_bookings %}
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="font-mono font-black text-slate-900">{{ bk.booking_reference }}</td>
+                            <td class="font-bold text-slate-700">{{ bk.get_booking_type_display }}</td>
+                            <td>
+                                <span class="font-bold text-slate-900 block">{{ bk.contact_name }}</span>
+                                <span class="text-[10px] text-slate-400 block">{{ bk.contact_email }}</span>
+                            </td>
+                            <td class="font-mono font-black text-slate-900">₹{{ bk.total_amount|floatformat:2 }}</td>
+                            <td>
+                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
+                                    {{ bk.booking_status }}
+                                </span>
+                            </td>
+                            <td class="text-right">
+                                <button type="button" onclick="openRecordHistory('hotel', '{{ bk.id }}')" title="View Audit History" class="text-purple-700 hover:text-purple-900 p-1.5 bg-purple-50 hover:bg-purple-100 rounded-lg transition inline-flex items-center justify-center">
+                                    <i class="ph-bold ph-clock-counter-clockwise text-base"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-slate-400 font-bold">No recent booking records.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

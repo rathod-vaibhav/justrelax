@@ -1,0 +1,77 @@
+{% extends 'agent/base_agent.html' %}
+
+{% block title %}Agency Profile & KYC Verification | JustRelax Partner Portal{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-4xl mx-auto">
+
+    <!-- PAGE HEADER -->
+    <div class="bg-slate-950 text-white rounded-2xl p-6 sm:p-8 shadow-xl border border-amber-500/30 space-y-2">
+        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block">Verification & Compliance</span>
+        <h1 class="text-2xl font-black text-white">B2B Agency Profile & KYC Documents</h1>
+        <p class="text-xs text-slate-300">Submit your agency tax credentials (GSTIN / PAN) and registration licenses for administrator approval.</p>
+    </div>
+
+    <!-- KYC FORM CARD -->
+    <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+        
+        <div class="flex items-center justify-between p-4 rounded-xl {% if agent_profile.kyc_status == 'APPROVED' %}bg-emerald-50 border border-emerald-200 text-emerald-900{% elif agent_profile.kyc_status == 'REJECTED' %}bg-rose-50 border border-rose-200 text-rose-900{% else %}bg-amber-50 border border-amber-200 text-amber-900{% endif %} font-bold text-xs">
+            <div class="flex items-center space-x-2">
+                <i class="ph-bold ph-shield-check text-xl"></i>
+                <span>KYC Verification Status: <strong class="uppercase font-black">{{ agent_profile.get_kyc_status_display }}</strong></span>
+            </div>
+            {% if agent_profile.kyc_notes %}
+                <span class="text-[11px] font-medium block">Note: {{ agent_profile.kyc_notes }}</span>
+            {% endif %}
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6 text-xs font-bold">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-slate-700 mb-1">Agency Trade Name</label>
+                    <input type="text" value="{{ agent_profile.agency_name }}" disabled class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-500">
+                </div>
+                <div>
+                    <label class="block text-slate-700 mb-1">Agency Phone Number</label>
+                    <input type="text" value="{{ agent_profile.agency_phone|default:user.phone_number }}" disabled class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-slate-700 mb-1">GSTIN Number</label>
+                    <input type="text" name="gstin" value="{{ agent_profile.gstin|default:'' }}" placeholder="e.g. 07AAAAA0000A1Z5" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-mono uppercase">
+                </div>
+                <div>
+                    <label class="block text-slate-700 mb-1">PAN or Tax Identification</label>
+                    <input type="text" name="tax_or_pan" value="{{ agent_profile.tax_or_pan|default:'' }}" placeholder="e.g. ABCDE1234F" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-mono uppercase">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-slate-700 mb-1">Agency Registered Address</label>
+                <textarea name="agency_address" rows="3" placeholder="Enter full agency physical business address..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl">{{ agent_profile.agency_address|default:'' }}</textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div>
+                    <label class="block text-slate-700 mb-1">Upload KYC Certificate / License (PDF/PNG)</label>
+                    <input type="file" name="kyc_document" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 text-xs">
+                </div>
+                <div>
+                    <label class="block text-slate-700 mb-1">Upload Agency Brand Logo</label>
+                    <input type="file" name="agency_logo" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 text-xs">
+                </div>
+            </div>
+
+            <div class="pt-4 flex justify-end">
+                <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-8 py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition">
+                    SUBMIT KYC DOCUMENTS FOR VERIFICATION
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}System Audit & Activity History Ledger | JustRelax ERP{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div>
+            <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block">Audit Ledger</span>
+            <h1 class="text-xl font-black text-slate-900">System Audit & Transaction History</h1>
+            <p class="text-xs text-slate-500">Audit trail of system transactions, booking events, and account activities.</p>
+        </div>
+    </div>
+
+    <!-- LOGS COMPACT TABLE -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-4">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left compact-table">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 font-black uppercase tracking-wider border-b border-slate-200">
+                        <th>Timestamp</th>
+                        <th>Event Type</th>
+                        <th>Reference / Subject</th>
+                        <th>Actor (User / Agent)</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium text-xs">
+                    {% for bk in bookings %}
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="font-mono text-[11px] text-slate-600">
+                                {{ bk.created_at|date:"Y-m-d H:i:s" }}
+                            </td>
+                            <td>
+                                <span class="bg-slate-100 text-slate-800 font-extrabold text-[10px] px-2 py-0.5 rounded-full uppercase border border-slate-200">
+                                    BOOKING_{{ bk.booking_type }}
+                                </span>
+                            </td>
+                            <td class="font-mono font-bold text-slate-900">
+                                {{ bk.booking_reference }} ({{ bk.contact_name }})
+                            </td>
+                            <td>
+                                <span class="font-bold text-slate-800 block">{{ bk.user.username|default:bk.contact_name }}</span>
+                            </td>
+                            <td class="font-mono font-black text-slate-900">
+                                ₹{{ bk.total_amount|floatformat:2 }}
+                            </td>
+                            <td>
+                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
+                                    {{ bk.booking_status }}
+                                </span>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-slate-400 font-bold">
+                                No audit log events recorded yet.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

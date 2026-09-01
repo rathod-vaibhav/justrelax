@@ -1,0 +1,485 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}JustRelax - Flights, Hotels, Holiday Tour Packages & Agent Portal{% endblock %}</title>
+
+    <!-- Favicon Icon (Converted from user LOGO_RB.png) -->
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/favicon.png' %}">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0084ff',
+                            600: '#0066cc',
+                            700: '#004c99',
+                            800: '#0a2240',
+                            900: '#051329',
+                        },
+                        coral: {
+                            500: '#ff5e3a',
+                            600: '#e54521',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f5f7fa;
+            color: #1a202c;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #051329 0%, #0a2240 50%, #004c99 100%);
+        }
+        .orange-gradient {
+            background: linear-gradient(90deg, #ff5e3a 0%, #ff8a00 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        [v-cloak] { display: none; }
+
+        /* Toast Notification Animations */
+        @keyframes toastSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateX(120%) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes toastProgressBar {
+            0% { width: 100%; }
+            100% { width: 0%; }
+        }
+
+        .animate-toast-slide-in {
+            animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .toast-progress-bar {
+            animation: toastProgressBar 5s linear forwards;
+        }
+
+        .toast-card:hover .toast-progress-bar {
+            animation-play-state: paused;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Announcement / Agent Bar -->
+    <div class="bg-brand-900 text-slate-300 text-[11px] py-1 px-4 border-b border-brand-800">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <span class="flex items-center text-amber-400 font-medium">
+                    <i class="ph ph-shield-check text-xs mr-1"></i> 100% Safe & Verified Travel Bookings
+                </span>
+                <span class="hidden md:inline text-slate-400">|</span>
+                <span class="hidden md:flex items-center text-slate-300">
+                    <i class="ph ph-phone-call mr-1"></i> 24/7 Helpline: +91 1800-JUST-RELAX
+                </span>
+            </div>
+            <div class="flex items-center space-x-4">
+                {% if user.is_authenticated and is_agent %}
+                    <span class="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-500/30 flex items-center">
+                        <i class="ph ph-briefcase mr-1"></i> AGENT PORTAL ACTIVE ({{ agent_profile.agency_name }})
+                    </span>
+                {% elif not user.is_authenticated %}
+                    <a href="{% url 'register_agent' %}" class="text-amber-400 hover:text-amber-300 font-semibold flex items-center transition">
+                        <i class="ph ph-storefront mr-1"></i> Register as Travel Agent (B2B)
+                    </a>
+                {% endif %}
+                <span class="text-slate-400">|</span>
+                <span class="flex items-center">
+                    <i class="ph ph-currency-inr mr-0.5"></i> INR (₹)
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Header (Compact & Sleek) -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14 py-1.5">
+                <!-- Logo -->
+                <div class="flex items-center space-x-5">
+                    <a href="{% url 'home' %}" class="flex items-center space-x-2.5 group">
+                        <img src="{% static 'img/logo_rb.png' %}" alt="JustRelax Logo" class="h-9 sm:h-10 w-auto max-h-10 object-contain flex-shrink-0 group-hover:scale-105 transition-transform" style="height: 36px; max-height: 40px;">
+                        <div class="flex flex-col justify-center">
+                            <span class="text-xl sm:text-2xl font-black tracking-tight text-brand-900 leading-none">Just<span class="text-coral-500">Relax</span></span>
+                            <span class="block text-[8.5px] sm:text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-0.5">Travel & Holidays</span>
+                        </div>
+                    </a>
+
+                    <!-- Navigation Category Tabs -->
+                    <nav class="hidden lg:flex items-center space-x-1">
+                        <a href="{% url 'flight_search' %}" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs {% if request.resolver_match.url_name == 'flight_search' %}text-brand-600 bg-brand-50{% else %}text-slate-700 hover:text-brand-600 hover:bg-slate-50{% endif %} transition">
+                            <i class="ph-duotone ph-airplane text-base text-brand-500"></i>
+                            <span>Flights</span>
+                        </a>
+                        <a href="{% url 'hotel_search' %}" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs {% if request.resolver_match.url_name == 'hotel_search' or request.resolver_match.url_name == 'hotel_detail' %}text-brand-600 bg-brand-50{% else %}text-slate-700 hover:text-brand-600 hover:bg-slate-50{% endif %} transition">
+                            <i class="ph-duotone ph-buildings text-base text-emerald-500"></i>
+                            <span>Hotels</span>
+                        </a>
+                        <a href="{% url 'packages_list' %}" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs {% if request.resolver_match.url_name == 'packages_list' or request.resolver_match.url_name == 'package_detail' %}text-brand-600 bg-brand-50{% else %}text-slate-700 hover:text-brand-600 hover:bg-slate-50{% endif %} transition">
+                            <i class="ph-duotone ph-island text-base text-amber-500"></i>
+                            <span>Holiday Packages</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Right Side User / Agent Controls -->
+                <div class="flex items-center space-x-2.5">
+                    {% if user.is_authenticated %}
+                        <!-- Wallet Pill -->
+                        <div class="hidden sm:flex items-center bg-slate-50 border border-slate-200 rounded-full px-3 py-1 text-xs font-semibold text-slate-700">
+                            <i class="ph-fill ph-wallet text-brand-600 mr-1.5 text-sm"></i>
+                            <span>Wallet: <strong class="text-brand-700 font-bold">₹{{ user_wallet.balance|default:"0.00" }}</strong></span>
+                        </div>
+
+                        <!-- My Bookings Link -->
+                        <a href="{% url 'my_bookings' %}" class="hidden sm:flex items-center text-xs font-semibold text-slate-700 hover:text-brand-600 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition">
+                            <i class="ph ph-ticket mr-1 text-base text-slate-400"></i>
+                            <span>My Trips</span>
+                        </a>
+
+                        <!-- Portal Specific Buttons -->
+                        {% if user.is_admin_or_staff %}
+                            <a href="{% url 'admin_dashboard' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center transition">
+                                <i class="ph ph-squares-four mr-1 text-sm"></i> Admin Panel
+                            </a>
+                        {% elif is_agent %}
+                            <a href="{% url 'agent_dashboard' %}" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center transition">
+                                <i class="ph ph-chart-line-up mr-1 text-sm"></i> Agent Desk
+                            </a>
+                        {% endif %}
+
+                        <!-- User Profile Dropdown -->
+                        <div class="relative group">
+                            <!-- HEADER BUTTON PILL -->
+                            <button type="button" class="flex items-center space-x-2 bg-slate-100/90 hover:bg-slate-200/90 border border-slate-200 px-2.5 py-1 rounded-full transition shadow-sm cursor-pointer select-none">
+                                <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-sm shrink-0">
+                                    {{ user.first_name|default:user.username|slice:":1"|upper }}
+                                </div>
+                                <span class="text-xs font-bold text-slate-800 max-w-[110px] truncate leading-none">
+                                    {{ user.first_name|default:user.username }}
+                                </span>
+                                <i class="ph-bold ph-caret-down text-slate-400 text-xs group-hover:rotate-180 transition-transform duration-200"></i>
+                            </button>
+
+                            <!-- DROPDOWN CONTAINER -->
+                            <div class="absolute right-0 top-full pt-1.5 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 transform origin-top-right group-hover:translate-y-0 translate-y-1 pointer-events-none group-hover:pointer-events-auto">
+                                <div class="bg-white rounded-2xl shadow-2xl border border-slate-200/80 p-2 overflow-hidden backdrop-blur-xl space-y-1">
+                                    
+                                    <!-- USER HEADER CARD -->
+                                    <div class="p-3 rounded-xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white space-y-1.5 border border-slate-800 shadow-sm">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[9px] font-extrabold uppercase tracking-widest text-slate-400">Signed in as</span>
+                                            {% if user.is_admin_or_staff %}
+                                                <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/30">SUPERADMIN</span>
+                                            {% elif is_agent %}
+                                                <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">B2B AGENT</span>
+                                            {% else %}
+                                                <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">CUSTOMER</span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-xs font-black text-white truncate">{{ user.email|default:user.username }}</p>
+                                        <p class="text-[10px] text-slate-300 font-medium truncate">{{ user.get_role_display }} Account</p>
+                                    </div>
+
+                                    <!-- MENU ITEMS -->
+                                    <a href="{% url 'my_bookings' %}" class="flex items-center space-x-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-brand-600 hover:bg-slate-100/80 rounded-xl transition">
+                                        <div class="w-6 h-6 rounded-lg bg-blue-50 text-brand-600 flex items-center justify-center shrink-0">
+                                            <i class="ph-bold ph-suitcase text-xs"></i>
+                                        </div>
+                                        <span>My Trips & Tickets</span>
+                                    </a>
+
+                                    {% if user.is_admin_or_staff %}
+                                        <a href="{% url 'admin_dashboard' %}" class="flex items-center space-x-2.5 px-3 py-2 text-xs font-extrabold text-indigo-700 hover:bg-indigo-50 rounded-xl transition">
+                                            <div class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                                                <i class="ph-bold ph-squares-four text-xs"></i>
+                                            </div>
+                                            <span>Admin Control Panel</span>
+                                        </a>
+                                    {% endif %}
+
+                                    {% if is_agent %}
+                                        <a href="{% url 'agent_dashboard' %}" class="flex items-center space-x-2.5 px-3 py-2 text-xs font-extrabold text-amber-800 hover:bg-amber-50 rounded-xl transition">
+                                            <div class="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                                                <i class="ph-bold ph-chart-line-up text-xs"></i>
+                                            </div>
+                                            <span>Agent Desk Dashboard</span>
+                                        </a>
+                                        <a href="{% url 'agent_markups' %}" class="flex items-center space-x-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100/80 rounded-xl transition">
+                                            <div class="w-6 h-6 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                                                <i class="ph-bold ph-percent text-xs"></i>
+                                            </div>
+                                            <span>Set Markups & Rates</span>
+                                        </a>
+                                        <a href="{% url 'agent_wallet' %}" class="flex items-center space-x-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100/80 rounded-xl transition">
+                                            <div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                                                <i class="ph-bold ph-wallet text-xs"></i>
+                                            </div>
+                                            <span>Agent Credit Ledger</span>
+                                        </a>
+                                    {% endif %}
+
+                                    <a href="{% url 'profile' %}" class="flex items-center space-x-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100/80 rounded-xl transition">
+                                        <div class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                                            <i class="ph-bold ph-user-gear text-xs"></i>
+                                        </div>
+                                        <span>Profile Settings</span>
+                                    </a>
+
+                                    <div class="border-t border-slate-100 my-1"></div>
+
+                                    <a href="{% url 'logout' %}" class="flex items-center space-x-2.5 px-3 py-2 text-xs font-extrabold text-rose-600 hover:bg-rose-50 rounded-xl transition">
+                                        <div class="w-6 h-6 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                                            <i class="ph-bold ph-sign-out text-xs"></i>
+                                        </div>
+                                        <span>Log Out</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-xs font-bold text-slate-700 hover:text-brand-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition">
+                            Login
+                        </a>
+                        <a href="{% url 'register_customer' %}" class="orange-gradient hover:opacity-95 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm shadow-orange-500/20 transition">
+                            Sign Up
+                        </a>
+                        <a href="{% url 'register_agent' %}" class="hidden sm:inline-flex bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
+                            Agent Sign-In
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Global Toast Notifications Container (Fixed Top-Right) -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col space-y-3 max-w-sm sm:max-w-md w-full px-4 sm:px-0 pointer-events-none">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast-card pointer-events-auto bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl border border-slate-100 p-4 transition-all duration-300 transform translate-x-0 opacity-100 relative overflow-hidden flex items-start space-x-3.5 group animate-toast-slide-in" data-toast-id="toast-{{ forloop.counter }}">
+                    <!-- Status Icon -->
+                    <div class="flex-shrink-0 mt-0.5">
+                        {% if message.tags == 'error' %}
+                            <div class="w-10 h-10 rounded-xl bg-red-50 border border-red-200/60 text-red-600 flex items-center justify-center shadow-inner">
+                                <i class="ph-bold ph-x-circle text-2xl"></i>
+                            </div>
+                        {% elif message.tags == 'success' %}
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 text-emerald-600 flex items-center justify-center shadow-inner">
+                                <i class="ph-bold ph-check-circle text-2xl"></i>
+                            </div>
+                        {% elif message.tags == 'warning' %}
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center shadow-inner">
+                                <i class="ph-bold ph-warning-octagon text-2xl"></i>
+                            </div>
+                        {% else %}
+                            <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200/60 text-brand-600 flex items-center justify-center shadow-inner">
+                                <i class="ph-bold ph-info text-2xl"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-1 pr-2">
+                        <div class="flex items-center space-x-1.5 mb-0.5">
+                            <span class="text-[11px] font-extrabold uppercase tracking-wider {% if message.tags == 'error' %}text-red-600{% elif message.tags == 'success' %}text-emerald-600{% elif message.tags == 'warning' %}text-amber-600{% else %}text-brand-600{% endif %}">
+                                {% if message.tags == 'error' %}Error Notice
+                                {% elif message.tags == 'success' %}Success
+                                {% elif message.tags == 'warning' %}Attention
+                                {% else %}Notification{% endif %}
+                            </span>
+                        </div>
+                        <p class="text-sm font-bold text-slate-800 leading-snug">{{ message }}</p>
+                    </div>
+
+                    <!-- Close Button -->
+                    <button type="button" onclick="dismissToast(this.closest('.toast-card'))" class="text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 p-1.5 rounded-xl transition-all focus:outline-none flex-shrink-0" aria-label="Close notification">
+                        <i class="ph-bold ph-x text-lg"></i>
+                    </button>
+
+                    <!-- Auto-dismiss Progress Bar -->
+                    <div class="toast-progress-bar absolute bottom-0 left-0 right-0 h-1 {% if message.tags == 'error' %}bg-red-500{% elif message.tags == 'success' %}bg-emerald-500{% elif message.tags == 'warning' %}bg-amber-500{% else %}bg-brand-500{% endif %}"></div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-900 text-white pt-16 pb-12 border-t border-brand-800 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 pb-12 border-b border-brand-800">
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex items-center space-x-2.5">
+                        <img src="{% static 'img/logo_rb.png' %}" alt="JustRelax Logo" class="h-10 sm:h-12 w-auto max-h-12 object-contain flex-shrink-0 drop-shadow" style="height: 42px; max-height: 48px;">
+                        <span class="text-2xl sm:text-3xl font-black tracking-tight text-white">Just<span class="text-coral-500">Relax</span></span>
+                    </div>
+                    <p class="text-sm text-slate-400 max-w-sm">
+                        JustRelax is your premier one-stop travel ecosystem for flights, luxury hotels, and bespoke holiday packages. Powering travelers and B2B agents with guaranteed best rates.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Book Services</h4>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li><a href="{% url 'flight_search' %}" class="hover:text-amber-400 transition">Domestic Flights</a></li>
+                        <li><a href="{% url 'flight_search' %}" class="hover:text-amber-400 transition">International Flights</a></li>
+                        <li><a href="{% url 'hotel_search' %}" class="hover:text-amber-400 transition">Luxury Hotels</a></li>
+                        <li><a href="{% url 'packages_list' %}" class="hover:text-amber-400 transition">Holiday Packages</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Agent & B2B</h4>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li><a href="{% url 'register_agent' %}" class="hover:text-amber-400 transition">Agent Registration</a></li>
+                        <li><a href="{% url 'login' %}" class="hover:text-amber-400 transition">B2B Agent Login</a></li>
+                        <li><a href="{% url 'home' %}" class="hover:text-amber-400 transition">Agent Markup Engine</a></li>
+                        <li><a href="{% url 'home' %}" class="hover:text-amber-400 transition">White-label E-Tickets</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Trust & Security</h4>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li><span class="flex items-center"><i class="ph ph-check text-emerald-400 mr-1.5"></i> IATA Approved</span></li>
+                        <li><span class="flex items-center"><i class="ph ph-check text-emerald-400 mr-1.5"></i> 256-Bit SSL</span></li>
+                        <li><span class="flex items-center"><i class="ph ph-check text-emerald-400 mr-1.5"></i> Instant Refunds</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400">
+                <p>&copy; 2026 JustRelax Travel Technologies Pvt Ltd. All rights reserved.</p>
+            </div>
+    <!-- Toast Notification JS Controller -->
+    <script>
+        function dismissToast(toastElement) {
+            if (!toastElement || toastElement.dataset.dismissed === "true") return;
+            toastElement.dataset.dismissed = "true";
+            
+            toastElement.style.transition = "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)";
+            toastElement.style.opacity = "0";
+            toastElement.style.transform = "translateX(120%) scale(0.9)";
+            
+            setTimeout(() => {
+                if (toastElement && toastElement.parentNode) {
+                    toastElement.remove();
+                }
+            }, 350);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const toasts = document.querySelectorAll('.toast-card');
+            toasts.forEach(toast => {
+                let timer = setTimeout(() => {
+                    dismissToast(toast);
+                }, 5000);
+
+                toast.addEventListener('mouseenter', () => {
+                    clearTimeout(timer);
+                });
+
+                toast.addEventListener('mouseleave', () => {
+                    timer = setTimeout(() => {
+                        dismissToast(toast);
+                    }, 2500);
+                });
+            });
+        });
+
+        window.showToast = function(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-card pointer-events-auto bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl border border-slate-100 p-4 transition-all duration-300 transform translate-x-0 opacity-100 relative overflow-hidden flex items-start space-x-3.5 group animate-toast-slide-in';
+            
+            let iconBox = '<div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200/60 text-brand-600 flex items-center justify-center shadow-inner"><i class="ph-bold ph-info text-2xl"></i></div>';
+            let titleTag = '<span class="text-[11px] font-extrabold uppercase tracking-wider text-brand-600">Notification</span>';
+            let progressBg = 'bg-brand-500';
+
+            if (type === 'error') {
+                iconBox = '<div class="w-10 h-10 rounded-xl bg-red-50 border border-red-200/60 text-red-600 flex items-center justify-center shadow-inner"><i class="ph-bold ph-x-circle text-2xl"></i></div>';
+                titleTag = '<span class="text-[11px] font-extrabold uppercase tracking-wider text-red-600">Error Notice</span>';
+                progressBg = 'bg-red-500';
+            } else if (type === 'success') {
+                iconBox = '<div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 text-emerald-600 flex items-center justify-center shadow-inner"><i class="ph-bold ph-check-circle text-2xl"></i></div>';
+                titleTag = '<span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-600">Success</span>';
+                progressBg = 'bg-emerald-500';
+            } else if (type === 'warning') {
+                iconBox = '<div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center shadow-inner"><i class="ph-bold ph-warning-octagon text-2xl"></i></div>';
+                titleTag = '<span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-600">Attention</span>';
+                progressBg = 'bg-amber-500';
+            }
+
+            toast.innerHTML = `
+                <div class="flex-shrink-0 mt-0.5">${iconBox}</div>
+                <div class="flex-1 pr-2">
+                    <div class="flex items-center space-x-1.5 mb-0.5">${titleTag}</div>
+                    <p class="text-sm font-bold text-slate-800 leading-snug">${message}</p>
+                </div>
+                <button type="button" onclick="dismissToast(this.closest('.toast-card'))" class="text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 p-1.5 rounded-xl transition-all focus:outline-none flex-shrink-0" aria-label="Close notification">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+                <div class="toast-progress-bar absolute bottom-0 left-0 right-0 h-1 ${progressBg}"></div>
+            `;
+
+            container.appendChild(toast);
+
+            let timer = setTimeout(() => {
+                dismissToast(toast);
+            }, duration);
+
+            toast.addEventListener('mouseenter', () => clearTimeout(timer));
+            toast.addEventListener('mouseleave', () => {
+                timer = setTimeout(() => dismissToast(toast), 2500);
+            });
+        };
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+

@@ -1,0 +1,78 @@
+{% extends 'agent/base_agent.html' %}
+
+{% block title %}Agency Markup Settings & Net Tariffs | JustRelax Partner Portal{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-4xl mx-auto">
+
+    <!-- PAGE HEADER -->
+    <div class="bg-slate-950 text-white rounded-2xl p-6 sm:p-8 shadow-xl border border-amber-500/30 space-y-2">
+        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block">Agency Profit Settings</span>
+        <h1 class="text-2xl font-black text-white">Default Agency Commission Markups (%)</h1>
+        <p class="text-xs text-slate-300">Set automatic percentage markups added on top of B2B net fares for Flights, Hotels, and Packages.</p>
+    </div>
+
+    <!-- MARKUPS FORM CARD -->
+    <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+        <form method="POST" class="space-y-6 text-xs font-bold">
+            {% csrf_token %}
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 rounded-xl bg-blue-50/60 border border-blue-200">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shrink-0">
+                            <i class="ph-duotone ph-airplane"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-extrabold text-slate-900 block">Flight Booking Markup (%)</span>
+                            <span class="text-[10px] text-slate-500 font-medium block">Added automatically to net airline fares on checkout</span>
+                        </div>
+                    </div>
+                    <div class="w-32 flex items-center space-x-1">
+                        <input type="number" step="0.5" name="markup_flight_pct" value="{{ agent_profile.markup_flight_pct }}" required class="w-full p-2.5 bg-white border border-slate-300 rounded-xl font-mono text-center text-sm font-black text-blue-700">
+                        <span class="text-slate-600 font-black text-sm">%</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-4 rounded-xl bg-emerald-50/60 border border-emerald-200">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl shrink-0">
+                            <i class="ph-duotone ph-buildings"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-extrabold text-slate-900 block">Hotel Tariffs Markup (%)</span>
+                            <span class="text-[10px] text-slate-500 font-medium block">Added automatically to net property room rates</span>
+                        </div>
+                    </div>
+                    <div class="w-32 flex items-center space-x-1">
+                        <input type="number" step="0.5" name="markup_hotel_pct" value="{{ agent_profile.markup_hotel_pct }}" required class="w-full p-2.5 bg-white border border-slate-300 rounded-xl font-mono text-center text-sm font-black text-emerald-700">
+                        <span class="text-slate-600 font-black text-sm">%</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-4 rounded-xl bg-amber-50/60 border border-amber-200">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center text-xl shrink-0">
+                            <i class="ph-duotone ph-island"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-extrabold text-slate-900 block">Holiday Packages Markup (%)</span>
+                            <span class="text-[10px] text-slate-500 font-medium block">Added automatically to curated tour itinerary prices</span>
+                        </div>
+                    </div>
+                    <div class="w-32 flex items-center space-x-1">
+                        <input type="number" step="0.5" name="markup_package_pct" value="{{ agent_profile.markup_package_pct }}" required class="w-full p-2.5 bg-white border border-slate-300 rounded-xl font-mono text-center text-sm font-black text-amber-800">
+                        <span class="text-slate-600 font-black text-sm">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 flex justify-end">
+                <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-8 py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition">
+                    SAVE AGENCY MARKUP PREFERENCES
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

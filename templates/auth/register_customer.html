@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Sign Up | JustRelax{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-xl space-y-6">
+        <div class="text-center space-y-1">
+            <h1 class="text-2xl font-black text-slate-900">Create Account</h1>
+            <p class="text-xs text-slate-500">Sign up and get ₹1,000 welcome bonus in wallet!</p>
+        </div>
+        <form method="POST" class="space-y-3 text-xs">
+            {% csrf_token %}
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">First Name</label>
+                    <input type="text" name="first_name" required class="w-full font-bold p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Last Name</label>
+                    <input type="text" name="last_name" required class="w-full font-bold p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                </div>
+            </div>
+            <div>
+                <label class="block font-bold text-slate-700 mb-1">Username</label>
+                <input type="text" name="username" required class="w-full font-bold p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+            </div>
+            <div>
+                <label class="block font-bold text-slate-700 mb-1">Email</label>
+                <input type="email" name="email" required class="w-full font-bold p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+            </div>
+            <div>
+                <label class="block font-bold text-slate-700 mb-1">Phone</label>
+                <input type="tel" name="phone_number" required class="w-full font-bold p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+            </div>
+            <div>
+                <label class="block font-bold text-slate-700 mb-1">Password</label>
+                <input type="password" name="password" required class="w-full font-bold p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+            </div>
+            <button type="submit" class="w-full orange-gradient text-white font-bold text-xs py-3.5 rounded-xl shadow-md mt-2">
+                CREATE ACCOUNT
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
