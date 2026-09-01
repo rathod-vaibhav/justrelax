@@ -132,35 +132,35 @@
             <div class="hero-glass-card bg-slate-900/65 backdrop-blur-2xl rounded-2xl p-3.5 sm:p-5 text-white border border-white/20 max-w-4xl mx-auto search-card-glow transition duration-300" :style="(openDropdown || showCalendar) ? { position: 'relative', zIndex: 1000 } : { position: 'relative', zIndex: 30 }" @click="closeAllPopups">
                 
                 <!-- TOP SERVICE TABS (Flights | Hotels | Holiday Packages) -->
-                <div class="flex items-center justify-center border-b border-white/15 pb-2.5 mb-3 space-x-2 overflow-x-auto relative z-10">
+                <div class="grid grid-cols-3 gap-1.5 sm:gap-3 border-b border-white/15 pb-3 mb-3 relative z-10 w-full">
                     <button 
                         type="button"
                         @click.stop="switchTab('flights')" 
-                        :class="activeTab === 'flights' ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/25 border-amber-400/50' : 'text-white/80 hover:text-white hover:bg-white/10 border-transparent'" 
-                        class="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg font-bold text-xs border transition-all duration-200 cursor-pointer backdrop-blur-md"
+                        :class="activeTab === 'flights' ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-lg shadow-orange-500/30 border-amber-400/70 ring-2 ring-amber-500/30 scale-[1.02]' : 'bg-white/10 hover:bg-white/20 text-white/90 border-white/15 hover:border-white/30'" 
+                        class="flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-4 py-2.5 rounded-xl font-extrabold text-[11px] sm:text-xs md:text-sm border transition-all duration-200 cursor-pointer backdrop-blur-md text-center w-full min-h-[42px] sm:min-h-[46px]"
                     >
-                        <i class="ph-duotone ph-airplane-tilt text-base"></i>
-                        <span>Flights</span>
+                        <i class="ph-duotone ph-airplane-tilt text-sm sm:text-base md:text-lg shrink-0"></i>
+                        <span class="truncate">Flights</span>
                     </button>
 
                     <button 
                         type="button"
                         @click.stop="switchTab('hotels')" 
-                        :class="activeTab === 'hotels' ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/25 border-amber-400/50' : 'text-white/80 hover:text-white hover:bg-white/10 border-transparent'" 
-                        class="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg font-bold text-xs border transition-all duration-200 cursor-pointer backdrop-blur-md"
+                        :class="activeTab === 'hotels' ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-lg shadow-orange-500/30 border-amber-400/70 ring-2 ring-amber-500/30 scale-[1.02]' : 'bg-white/10 hover:bg-white/20 text-white/90 border-white/15 hover:border-white/30'" 
+                        class="flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-4 py-2.5 rounded-xl font-extrabold text-[11px] sm:text-xs md:text-sm border transition-all duration-200 cursor-pointer backdrop-blur-md text-center w-full min-h-[42px] sm:min-h-[46px]"
                     >
-                        <i class="ph-duotone ph-buildings text-base"></i>
-                        <span>Hotels & Stays</span>
+                        <i class="ph-duotone ph-buildings text-sm sm:text-base md:text-lg shrink-0"></i>
+                        <span class="truncate">Hotels & Stays</span>
                     </button>
 
                     <button 
                         type="button"
                         @click.stop="switchTab('packages')" 
-                        :class="activeTab === 'packages' ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/25 border-amber-400/50' : 'text-white/80 hover:text-white hover:bg-white/10 border-transparent'" 
-                        class="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg font-bold text-xs border transition-all duration-200 cursor-pointer backdrop-blur-md"
+                        :class="activeTab === 'packages' ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-lg shadow-orange-500/30 border-amber-400/70 ring-2 ring-amber-500/30 scale-[1.02]' : 'bg-white/10 hover:bg-white/20 text-white/90 border-white/15 hover:border-white/30'" 
+                        class="flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-4 py-2.5 rounded-xl font-extrabold text-[11px] sm:text-xs md:text-sm border transition-all duration-200 cursor-pointer backdrop-blur-md text-center w-full min-h-[42px] sm:min-h-[46px]"
                     >
-                        <i class="ph-duotone ph-island text-base"></i>
-                        <span>Holiday Packages</span>
+                        <i class="ph-duotone ph-island text-sm sm:text-base md:text-lg shrink-0"></i>
+                        <span class="truncate">Holiday Packages</span>
                     </button>
                 </div>
 
